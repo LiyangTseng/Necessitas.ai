@@ -1,0 +1,98 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+        description: This hook trims whitespace.
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+        exclude: |
+          (?x)^(
+            \.md$|
+            \.txt$|
+            \.rst$
+          )$
+
+      - id: end-of-file-fixer
+        name: Fix end of files
+        description: Ensures that a file is either empty or ends with one newline.
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+
+      - id: check-yaml
+        name: Check YAML syntax
+        description: This hook checks yaml files for parseable syntax.
+        entry: check-yaml
+        language: system
+        types: [yaml]
+
+      - id: check-json
+        name: Check JSON syntax
+        description: This hook checks json files for parseable syntax.
+        entry: check-json
+        language: system
+        types: [json]
+
+      - id: check-merge-conflict
+        name: Check for merge conflict markers
+        description: Check for files that contain merge conflict strings.
+        entry: check-merge-conflict
+        language: system
+        types: [text]
+
+      - id: check-added-large-files
+        name: Check for large files
+        description: Prevent large files from being committed.
+        entry: check-added-large-files
+        language: system
+        args: ['--maxkb=1000']
+
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        name: Black Python code formatter
+        description: This hook runs black, the Python code formatter.
+        entry: black
+        language: system
+        language_version: python3
+        types: [python]
+        args: [--line-length=88, --extend-ignore=E203,W503]
+        additional_dependencies: [black[jupyter]]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 Python linter
+        description: This hook runs flake8, a Python linter.
+        entry: flake8
+        language: system
+        language_version: python3
+        types: [python]
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        name: MyPy type checker
+        description: This hook runs mypy, a static type checker for Python.
+        entry: mypy
+        language: system
+        language_version: python3
+        types: [python]
+        args: [--ignore-missing-imports]
+
+  - repo: local
+    hooks:
+      - id: trailing-whitespace-js
+        name: Remove trailing whitespace (JS/TS)
+        description: Remove trailing whitespace from JavaScript/TypeScript files
+        entry: sed -i 's/[[:space:]]*$//'
+        language: system
+        files: \.(js|ts|jsx|tsx)$
+        pass_filenames: true
