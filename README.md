@@ -1,116 +1,179 @@
-# CompanyRadar: Autonomous Market Intelligence Agent
+# CareerCompassAI: Intelligent Career Path Recommendation Agent
 
-An AI agent that continuously scans, summarizes, and visualizes the strategic moves, partnerships, and product focus areas of major tech companies — building a similarity graph that updates itself using reasoning and real-time data.
+An AI-powered career guidance system that analyzes resumes, matches job opportunities, and provides personalized career roadmaps using AWS Bedrock AgentCore.
 
-## 🎯 Hackathon Alignment
+## 🎯 **Hackathon Project Overview**
 
-This project is designed for the AWS AI Agent Global Hackathon and meets all requirements:
+**Built for**: AWS AI Agent Global Hackathon 2025
+**Core Value**: Personalized career guidance and job matching
+**Technology**: AWS Bedrock AgentCore + FastAPI + Next.js + ML Analysis
 
-- **Autonomous AI Agent**: Uses reasoning LLMs for decision-making and task execution
-- **AWS Integration**: Built with Bedrock AgentCore, SageMaker, and other AWS services
-- **Real-world Impact**: Helps analysts, investors, and founders understand market trends
-- **Technical Excellence**: Multi-service architecture with live data pipeline
+## System Architecture
+```mermaid
+flowchart TD
+  %% Frontend
+  subgraph "Frontend Layer"
+    User["[Next.js Frontend]<br>User Web App"]
+    User -->|"HTTPS + Auth"| APIGW["[AWS API Gateway]<br>Entry / Load Balancer"]
+  end
 
-## 🏗️ Architecture Overview
+  %% Backend
+  subgraph "Application Backend Layer"
+    APIGW --> BFF["[FastAPI]<br>Backend API"]
+    BFF --> Cognito["[AWS Cognito]<br>Authentication & Identity"]
+    BFF -->|calls| AgentAPI["**[Amazon Bedrock AgentCore]**<br>Agent API Endpoint"]
+    BFF -->|calls| JobRecommender["Job Matching API<br>(Internal Python Service)"]
+  end
+
+  %% Agent
+  subgraph "Agent Layer"
+    AgentAPI --> AgentRuntime["Agent Runtime<br>(AgentCore / Python)"]
+    AgentRuntime --> ToolInvoker["Tool Invoker<br>(Lambdas & External APIs)"]
+    AgentRuntime --> Memory["Memory Manager<br>(VectorDB / DynamoDB)"]
+    AgentRuntime --> Bedrock["**[Amazon Bedrock]**<br>LLMs for Reasoning & Generation"]
+    AgentRuntime --> Secrets["**[AWS Secrets Manager]**<br>Credentials"]
+    AgentRuntime --> Observability["**[CloudWatch / X-Ray]**<br>Monitoring"]
+    Observability --> DevOps["**[Grafana / Alerts / PagerDuty]**"]
+  end
+
+  %% Tools & Data
+  subgraph "Tools & Data Layer"
+    ToolInvoker --> Lambdas["**[AWS Lambda Functions]**<br>• Resume Parser (Textract)<br>• Job Fetcher (OpenSearch/Adzuna)<br>• Company Info (Crunchbase)<br>• Scoring / Embeddings<br>• Apply Simulator"]
+    Lambdas --> S3["**[AWS S3]**<br>Resumes / Artifacts"]
+    Lambdas --> VectorDB["Vector DB / Pinecone / OpenSearch"]
+  end
+
+  %% Persistence
+  subgraph "Persistence Layer"
+    Memory --> DynamoDB["**[AWS DynamoDB]**<br>User Contexts & Preferences"]
+    VectorDB --> Memory
+  end
+  ```
+## 🚀 **Quick Start**
+
+### **1. Setup Development Environment**
+```bash
+# Create virtual environment
+python -m venv compass
+source compass/bin/activate  # On Windows: compass\Scripts\activate
+
+# Install dependencies
+pip install -r backend/requirements.txt
+
+# Install frontend dependencies
+cd frontend && npm install && cd ..
+
+# Start the backend
+cd backend && python app/main.py
+
+# Start the frontend (new terminal)
+cd frontend && npm run dev
+```
+
+### **2. Test the System**
+```bash
+# Test resume upload
+curl -X POST "http://localhost:8000/api/resume/upload" \
+  -F "file=@sample_resume.pdf"
+
+# Test job recommendations
+curl -X GET "http://localhost:8000/api/jobs/recommendations?user_id=123"
+```
+
+## 🏗️ **Project Structure**
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Data Sources  │    │   AWS Bedrock    │    │   Visualization │
-│   (News, APIs)  │───▶│   AgentCore      │───▶│   (React App)   │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌──────────────────┐
-                       │   SageMaker      │
-                       │   (Clustering)   │
-                       └──────────────────┘
+careercompass-ai/
+├── backend/                    # FastAPI backend
+│   ├── app/
+│   │   ├── main.py           # FastAPI entrypoint
+│   │   ├── routers/          # API endpoints
+│   │   ├── core/             # Configuration & database
+│   │   ├── services/         # Business logic
+│   │   ├── agents/           # AI agents
+│   │   └── models/           # Data models
+│   └── requirements.txt
+├── frontend/                  # Next.js frontend
+│   ├── pages/                # Next.js pages
+│   ├── components/           # React components
+│   ├── lib/                  # Utilities
+│   └── package.json
+├── infra/                    # Infrastructure
+│   ├── terraform/            # AWS infrastructure
+│   └── ecs/                  # Container orchestration
+├── scripts/                  # Utility scripts
+└── docs/                     # Documentation
 ```
 
-## 🚀 Quick Start
+## 🎯 **Core Features**
 
-1. **Prerequisites**
-   ```bash
-   # Install dependencies
-   pip install -r requirements.txt
-   
-   # Set up AWS credentials
-   aws configure
-   ```
+### **Resume Analysis**
+- **PDF Processing**: Extract text and structure from resumes
+- **Skill Extraction**: Identify technical and soft skills
+- **Experience Analysis**: Parse work history and achievements
+- **Education Parsing**: Extract educational background
 
-2. **Deploy Infrastructure**
-   ```bash
-   # Deploy AWS resources
-   python scripts/deploy_infrastructure.py
-   ```
+### **Job Matching**
+- **API Integration**: Crunchbase, LinkedIn, Indeed, Greenhouse
+- **Skill Matching**: Match user skills to job requirements
+- **Company Analysis**: Research company culture and growth
+- **Salary Insights**: Market rate analysis and negotiation tips
 
-3. **Run the Agent**
-   ```bash
-   # Start the autonomous agent
-   python src/agent/main.py
-   ```
+### **Career Guidance**
+- **Skill Gap Analysis**: Identify missing skills for target roles
+- **Transition Roadmap**: Step-by-step career progression plan
+- **Industry Insights**: Market trends and opportunities
+- **Personalized Recommendations**: AI-powered career advice
 
-4. **View Results**
-   ```bash
-   # Start the visualization frontend
-   cd frontend && npm start
-   ```
+### **AWS Bedrock Integration**
+- **Autonomous Agent**: Orchestrates analysis and recommendations
+- **Natural Language**: Conversational career guidance
+- **Reasoning Engine**: Complex decision-making for career paths
+- **Multi-step Workflows**: Resume → Analysis → Matching → Roadmap
 
-## 📁 Project Structure
-
-```
-company_radar/
-├── src/
-│   ├── agent/           # Core AI agent logic
-│   ├── data/            # Data ingestion and processing
-│   ├── ml/              # Machine learning models
-│   └── api/             # REST API endpoints
-├── frontend/            # React visualization app
-├── infrastructure/      # AWS CDK/Terraform configs
-├── scripts/             # Deployment and utility scripts
-└── docs/               # Documentation
-```
-
-## 🎯 Key Features
-
-- **Autonomous Reasoning**: Agent plans and executes data collection tasks
-- **Real-time Data**: Integrates with news APIs, job boards, and company databases
-- **AI Clustering**: Uses embeddings to identify company similarities
-- **Interactive Visualization**: Dynamic graphs showing market relationships
-- **Continuous Learning**: Agent improves its understanding over time
-
-## 🏆 Hackathon Criteria Alignment
+## 🏆 **Hackathon Alignment**
 
 | Criterion | Score | Implementation |
 |-----------|-------|----------------|
-| **Potential Value/Impact (20%)** | ✅ | Helps analysts understand market trends at scale |
-| **Creativity (10%)** | ✅ | Novel autonomous agent for market intelligence |
-| **Technical Execution (50%)** | ✅ | Multi-service AWS architecture with reasoning |
-| **Functionality (10%)** | ✅ | Live data pipeline with interactive visualization |
-| **Demo Presentation (10%)** | ✅ | End-to-end agent workflow demonstration |
+| **Potential Value/Impact (20%)** | ✅ | Career guidance for millions of job seekers |
+| **Creativity (10%)** | ✅ | Novel AI agent for career development |
+| **Technical Execution (50%)** | ✅ | Multi-service AWS architecture with Bedrock |
+| **Functionality (10%)** | ✅ | End-to-end career guidance system |
+| **Demo Presentation (10%)** | ✅ | Live resume analysis and job matching |
 
-## 🔧 AWS Services Used
+## 🔧 **Technology Stack**
 
-- **Amazon Bedrock AgentCore**: Task planning and reasoning
-- **Amazon Bedrock**: LLM foundation (Claude/Mistral)
-- **Amazon SageMaker**: ML clustering and embeddings
-- **AWS Lambda**: Serverless compute for data processing
-- **Amazon S3**: Data storage and model artifacts
-- **Amazon DynamoDB**: Real-time data storage
-- **Amazon API Gateway**: REST API endpoints
-- **Amazon CloudWatch**: Monitoring and logging
+### **Frontend**
+- **Next.js**: React framework with SSR
+- **Tailwind CSS**: Utility-first styling
+- **Recharts**: Data visualization
+- **TypeScript**: Type-safe development
 
-## 📊 Demo Scenarios
+### **Backend**
+- **FastAPI**: High-performance Python API
+- **PostgreSQL**: Relational database
+- **Redis**: Caching and session storage
+- **AWS Bedrock**: AI reasoning and analysis
 
-1. **Agent Planning**:** "What companies should I monitor this week?"
-2. **Data Collection**:** Autonomous gathering from multiple sources
-3. **AI Analysis**:** Clustering companies by strategic similarity
-4. **Visualization**:** Interactive graph showing market relationships
-5. **Query Interface**:** "Show me AI companies converging on infrastructure"
+### **AI/ML**
+- **AWS Bedrock AgentCore**: Autonomous career guidance
+- **spaCy**: Resume text processing
+- **Sentence Transformers**: Skill matching
+- **Custom ML Models**: Career path prediction
 
-## 🚀 Deployment
+### **Infrastructure**
+- **AWS ECS Fargate**: Container orchestration
+- **API Gateway**: API management
+- **S3**: File storage
+- **CloudWatch**: Monitoring and logging
 
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instructions.
+## 🚀 **Next Steps**
 
-## 📝 License
+1. **Setup environment**: `./scripts/setup.sh`
+2. **Test resume upload**: Upload sample resume
+3. **Deploy to AWS**: `cd infra/terraform && terraform apply`
+4. **Practice demo**: Live resume analysis and job matching
 
-MIT License - see [LICENSE](LICENSE) for details.
+---
+
+**Ready to revolutionize career guidance!** 🎉
