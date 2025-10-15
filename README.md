@@ -1,4 +1,5 @@
 # necessitas.ai: Intelligent Career Path Recommendation Agent
+[![CI/CD Pipeline](https://github.com/LiyangTseng/necessitas.ai/actions/workflows/ci.yml/badge.svg)](https://github.com/LiyangTseng/necessitas.ai/actions/workflows/ci.yml)
 
 An AI-powered career guidance system that analyzes resumes, matches job opportunities, and provides personalized career roadmaps using AWS Bedrock AgentCore.
 
@@ -7,8 +8,9 @@ An AI-powered career guidance system that analyzes resumes, matches job opportun
 ### **Setup (One-time)**
 ```bash
 # Clone and setup
-git clone <repository-url>
-cd careercompass-ai
+git clone [<repository-url>](https://github.com/LiyangTseng/necessitas.ai)
+cd necessitas.ai
+
 python -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 pip install -r requirements.txt
