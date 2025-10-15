@@ -2,12 +2,12 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { 
-  Upload, 
-  Search, 
-  TrendingUp, 
-  Users, 
-  Briefcase, 
+import {
+  Upload,
+  Search,
+  TrendingUp,
+  Users,
+  Briefcase,
   Target,
   ArrowRight,
   CheckCircle
@@ -77,7 +77,7 @@ export default function Home() {
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
@@ -86,24 +86,24 @@ export default function Home() {
                 Your AI Career
                 <span className="text-indigo-600"> Compass</span>
               </motion.h1>
-              
-              <motion.p 
+
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
               >
-                Get personalized career guidance, job recommendations, and skill development 
+                Get personalized career guidance, job recommendations, and skill development
                 roadmaps powered by advanced AI technology.
               </motion.p>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="flex flex-col sm:flex-row gap-4 justify-center"
               >
-                <Link 
+                <Link
                   href="/upload"
                   className="inline-flex items-center px-8 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
                 >
@@ -111,7 +111,7 @@ export default function Home() {
                   Upload Resume
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
-                <Link 
+                <Link
                   href="/jobs"
                   className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-lg border-2 border-indigo-600 hover:bg-indigo-50 transition-colors"
                 >
@@ -187,7 +187,7 @@ export default function Home() {
               <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
                 Join thousands of professionals who have found their dream jobs with CareerCompassAI
               </p>
-              <Link 
+              <Link
                 href="/upload"
                 className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
               >

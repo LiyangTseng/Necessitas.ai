@@ -2,10 +2,10 @@ import { useState, useCallback } from 'react';
 import Head from 'next/head';
 import { useDropzone } from 'react-dropzone';
 import { motion } from 'framer-motion';
-import { 
-  Upload, 
-  FileText, 
-  CheckCircle, 
+import {
+  Upload,
+  FileText,
+  CheckCircle,
   AlertCircle,
   Loader2,
   ArrowRight,
@@ -71,14 +71,14 @@ export default function UploadPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl font-bold text-gray-900 mb-4"
             >
               Upload Your Resume
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -98,13 +98,13 @@ export default function UploadPage() {
             <div
               {...getRootProps()}
               className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
-                isDragActive 
-                  ? 'border-indigo-500 bg-indigo-50' 
+                isDragActive
+                  ? 'border-indigo-500 bg-indigo-50'
                   : 'border-gray-300 hover:border-indigo-400'
               }`}
             >
               <input {...getInputProps()} />
-              
+
               {isUploading ? (
                 <div className="flex flex-col items-center">
                   <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
@@ -139,7 +139,7 @@ export default function UploadPage() {
               className="bg-white rounded-xl shadow-lg p-8"
             >
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Analysis Results</h2>
-              
+
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Skills */}
                 <div>

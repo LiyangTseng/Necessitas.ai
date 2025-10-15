@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
-import { 
-  TrendingUp, 
-  Target, 
-  Briefcase, 
-  Users, 
-  MapPin, 
+import {
+  TrendingUp,
+  Target,
+  Briefcase,
+  Users,
+  MapPin,
   DollarSign,
   Clock,
   Star,
@@ -278,7 +278,7 @@ export default function Dashboard() {
             >
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Skill Gap Analysis</h3>
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-700 mb-2">Missing Skills</h4>

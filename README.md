@@ -2,6 +2,28 @@
 
 An AI-powered career guidance system that analyzes resumes, matches job opportunities, and provides personalized career roadmaps using AWS Bedrock AgentCore.
 
+## 🚀 **Quick Start**
+
+### **Setup (One-time)**
+```bash
+# Clone and setup
+git clone <repository-url>
+cd careercompass-ai
+python -m venv env
+source env/bin/activate  # On Windows: env\Scripts\activate
+pip install -r requirements.txt
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### **Before Every Commit**
+Can manually check if the formatting issues are fixed
+```bash
+pre-commit run --all-files --verbose
+```
+
+
 ## 🎯 **Hackathon Project Overview**
 
 **Built for**: AWS AI Agent Global Hackathon 2025
@@ -133,13 +155,13 @@ careercompass-ai/
 
 ## 🏆 **Hackathon Alignment**
 
-| Criterion | Score | Implementation |
-|-----------|-------|----------------|
-| **Potential Value/Impact (20%)** | ✅ | Career guidance for millions of job seekers |
-| **Creativity (10%)** | ✅ | Novel AI agent for career development |
-| **Technical Execution (50%)** | ✅ | Multi-service AWS architecture with Bedrock |
-| **Functionality (10%)** | ✅ | End-to-end career guidance system |
-| **Demo Presentation (10%)** | ✅ | Live resume analysis and job matching |
+| Criterion                        | Score | Implementation                              |
+|----------------------------------|-------|---------------------------------------------|
+| **Potential Value/Impact (20%)** | ✅     | Career guidance for millions of job seekers |
+| **Creativity (10%)**             | ✅     | Novel AI agent for career development       |
+| **Technical Execution (50%)**    | ✅     | Multi-service AWS architecture with Bedrock |
+| **Functionality (10%)**          | ✅     | End-to-end career guidance system           |
+| **Demo Presentation (10%)**      | ✅     | Live resume analysis and job matching       |
 
 ## 🔧 **Technology Stack**
 

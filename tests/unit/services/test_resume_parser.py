@@ -384,7 +384,7 @@ class TestResumeParser(AsyncTestCase):
         text_with_languages = """
         John Doe
         Software Engineer
-        
+
         LANGUAGES
         English, Spanish, French
         """
