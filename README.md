@@ -1,4 +1,4 @@
-# CareerCompassAI: Intelligent Career Path Recommendation Agent
+# necessitas.ai: Intelligent Career Path Recommendation Agent
 
 An AI-powered career guidance system that analyzes resumes, matches job opportunities, and provides personalized career roadmaps using AWS Bedrock AgentCore.
 
@@ -54,8 +54,8 @@ flowchart TD
 ### **1. Setup Development Environment**
 ```bash
 # Create virtual environment
-python -m venv compass
-source compass/bin/activate  # On Windows: compass\Scripts\activate
+python -m venv env
+source env/bin/activate  # On Windows: env\Scripts\activate
 
 # Install dependencies
 pip install -r backend/requirements.txt
