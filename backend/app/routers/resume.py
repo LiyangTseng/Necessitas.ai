@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime
 
 from app.services.resume_parser import ResumeParser
-from app.agents.resume_analyzer import ResumeAnalyzer
+from backend.app.agents.resume_analyzer.resume_analyzer import ResumeAnalyzer
 from app.models.user_profile import UserProfile
 
 router = APIRouter()

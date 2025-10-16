@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, Any, Optional
 from datetime import datetime
 
-from app.agents.bedrock_agent import BedrockAgent
+from backend.app.agents.bedrock_agent.bedrock_agent import BedrockAgent
 
 router = APIRouter()
 
