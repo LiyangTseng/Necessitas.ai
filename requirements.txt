@@ -1,6 +1,8 @@
+bedrock-agentcore
 playwright
 rich
 matplotlib
+strands-agents
 seaborn
 fastapi
 uvicorn
