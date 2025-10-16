@@ -1,3 +1,4 @@
+bedrock-agentcore-starter-toolkit>=0.1.21
 bedrock-agentcore
 playwright
 rich
