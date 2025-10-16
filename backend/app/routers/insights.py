@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-from app.agents.roadmap_generator import RoadmapGenerator
+from backend.app.agents.roadmap_generator.roadmap_generator import RoadmapGenerator
 from app.services.job_recommender import JobRecommender
 
 router = APIRouter()

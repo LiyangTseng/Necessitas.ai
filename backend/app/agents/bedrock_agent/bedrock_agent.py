@@ -12,7 +12,7 @@ app = BedrockAgentCoreApp()
 
 MEMORY_ID = os.getenv("BEDROCK_AGENTCORE_MEMORY_ID")
 REGION = os.getenv("AWS_REGION")
-MODEL_ID = "amazon.nova-premier-v1:0amazon.nova-premier-v1:0"
+MODEL_ID = "us.amazon.nova-premier-v1:0"
 
 ci_sessions = {}
 current_session = None

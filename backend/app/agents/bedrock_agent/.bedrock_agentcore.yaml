@@ -2,10 +2,10 @@ default_agent: bedrock_agent
 agents:
   bedrock_agent:
     name: bedrock_agent
-    entrypoint: C:/Users/User/Desktop/necessitas.ai/backend/app/agents/bedrock_agent.py
+    entrypoint: C:/Users/User/Desktop/necessitas.ai/backend/app/agents/bedrock_agent/bedrock_agent.py
     platform: linux/arm64
     container_runtime: none
-    source_path: C:\Users\User\Desktop\necessitas.ai\backend\app\agents
+    source_path: C:\Users\User\Desktop\necessitas.ai\backend\app\agents\bedrock_agent
     aws:
       execution_role: arn:aws:iam::355444226013:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-b0f5e41dff
       execution_role_auto_create: false
@@ -23,7 +23,7 @@ agents:
     bedrock_agentcore:
       agent_id: bedrock_agent-VLBeXl6Jo1
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:355444226013:runtime/bedrock_agent-VLBeXl6Jo1
-      agent_session_id: f9b9af51-b4e9-4932-9923-60fb508910d0
+      agent_session_id: 47c0ab1a-00bb-4a73-b632-329b78ccec04
     codebuild:
       project_name: bedrock-agentcore-bedrock_agent-builder
       execution_role: arn:aws:iam::355444226013:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-b0f5e41dff
@@ -35,7 +35,7 @@ agents:
       memory_name: bedrock_agent_mem
       event_expiry_days: 30
       first_invoke_memory_check_done: true
-      was_created_by_toolkit: true
+      was_created_by_toolkit: false
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null

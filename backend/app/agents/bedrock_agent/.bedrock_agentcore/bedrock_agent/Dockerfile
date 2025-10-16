@@ -8,7 +8,9 @@ ENV UV_SYSTEM_PYTHON=1 \
     PYTHONUNBUFFERED=1 \
     DOCKER_CONTAINER=1 \
     AWS_REGION=us-east-1 \
-    AWS_DEFAULT_REGION=us-east-1
+    AWS_DEFAULT_REGION=us-east-1 \
+    BEDROCK_AGENTCORE_MEMORY_ID=memory_ymkys-OsxFMnFs19 \
+    BEDROCK_AGENTCORE_MEMORY_NAME=bedrock_agent_memory
 
 
 
