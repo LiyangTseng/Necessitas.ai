@@ -7,8 +7,10 @@ from typing import List, Optional
 from datetime import datetime
 from loguru import logger
 
+from base_adapter import JobDataAdapter
 from .adapters import AdzunaJobAdapter
-from .models import JobPosting, JobMatchScore
+from .models import JobPosting, JobSearchResult, JobMatchScore
+from app.core.config import settings
 
 
 class JobFetcher:

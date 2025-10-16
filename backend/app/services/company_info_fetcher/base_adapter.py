@@ -6,7 +6,7 @@ Abstract base class for company data adapters.
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from .models import CompanyInfo, FundingRound
+from models import CompanyInfo, FundingRound
 
 
 class CompanyDataAdapter(ABC):

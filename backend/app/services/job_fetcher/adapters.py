@@ -10,10 +10,11 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from loguru import logger
 
-from app.services.job_fetcher.models import JobPosting, WorkType, ExperienceLevel
-from app.core.config import settings
-
 from .base_adapter import JobDataAdapter
+from models import JobPosting, WorkType, ExperienceLevel
+from core.config import settings
+
+from base_adapter import JobDataAdapter
 
 
 class AdzunaJobAdapter(JobDataAdapter):

@@ -9,13 +9,9 @@ from datetime import datetime
 from loguru import logger
 
 from .base_adapter import CompanyDataAdapter
-from .adapters import (
-    CrunchbaseCompanyAdapter,
-    LinkedInCompanyAdapter,
-    MockCompanyAdapter,
-)
-from .models import CompanyInfo, FundingRound, CompanySearchResult
-from app.core.config import settings
+from .adapters import CrunchbaseCompanyAdapter, LinkedInCompanyAdapter, MockCompanyAdapter
+from models import CompanyInfo, FundingRound, CompanySearchResult
+from core.config import settings
 
 
 class CompanyInfoFetcher:

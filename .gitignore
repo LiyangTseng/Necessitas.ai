@@ -200,7 +200,6 @@ data/
 *.parquet
 
 # Model files
-models/
 *.pkl
 *.joblib
 *.h5

@@ -10,8 +10,8 @@ from datetime import datetime
 from loguru import logger
 
 from .base_adapter import CompanyDataAdapter
-from .models import CompanyInfo, FundingRound
-from app.core.config import settings
+from models import CompanyInfo, FundingRound
+from core.config import settings
 
 
 class CrunchbaseCompanyAdapter(CompanyDataAdapter):

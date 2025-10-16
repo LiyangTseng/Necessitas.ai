@@ -6,7 +6,7 @@ Abstract base class for job data adapters.
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from .models import JobPosting
+from models import JobPosting
 
 
 class JobDataAdapter(ABC):

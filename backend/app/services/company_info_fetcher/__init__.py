@@ -11,7 +11,7 @@ from .adapters import (
     LinkedInCompanyAdapter,
     MockCompanyAdapter,
 )
-from .models import CompanyInfo, FundingRound
+from models import CompanyInfo, FundingRound
 
 __all__ = [
     "CompanyInfoFetcher",
