@@ -1,5 +1,5 @@
 """
-CareerCompassAI Database Configuration
+necessitas.ai Database Configuration
 
 Database setup and connection management.
 """

@@ -1,5 +1,5 @@
 """
-Pytest configuration and fixtures for CareerCompassAI tests.
+Pytest configuration and fixtures for necessitas.ai tests.
 """
 
 import pytest

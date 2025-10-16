@@ -1,5 +1,5 @@
 """
-Test utilities and base classes for CareerCompassAI tests.
+Test utilities and base classes for necessitas.ai tests.
 """
 
 import unittest

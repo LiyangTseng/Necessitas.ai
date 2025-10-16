@@ -1,5 +1,5 @@
 """
-CareerCompassAI Configuration
+necessitas.ai Configuration
 
 Centralized configuration management for the application.
 """
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     """Application settings."""
 
     # Application
-    app_name: str = "CareerCompassAI"
+    app_name: str = "necessitas.ai"
     app_version: str = "1.0.0"
     debug: bool = False
 

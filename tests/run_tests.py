@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner for CareerCompassAI tests.
+Test runner for necessitas.ai tests.
 
 This script runs all unit tests and provides detailed output.
 """
