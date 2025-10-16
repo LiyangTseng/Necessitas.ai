@@ -51,6 +51,9 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = False
 
+    # Adzuna API credentials
+    adzuna_app_id: str = "14d37c2b"
+    adzuna_app_key: str = "a79b17f868b53ee23f5ef701db02a24e"
 
 # Global settings instance
 settings = Settings()

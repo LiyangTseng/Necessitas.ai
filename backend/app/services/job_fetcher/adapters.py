@@ -4,645 +4,165 @@ Job Data Adapters
 Concrete implementations of job data adapters for different sources.
 """
 
+# app/services/job_fetcher/adapters/adzuna_adapter.py
 import httpx
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from loguru import logger
 
-from .base_adapter import JobDataAdapter
-from .models import JobPosting, WorkType, ExperienceLevel
+from app.services.job_fetcher.models import JobPosting, WorkType, ExperienceLevel
 from app.core.config import settings
 
+from .base_adapter import JobDataAdapter
 
-class IndeedJobAdapter(JobDataAdapter):
-    """Indeed job data adapter."""
 
-    def __init__(self, api_key: str = None):
-        """Initialize Indeed adapter."""
-        self.api_key = api_key or settings.indeed_api_key
-        self.base_url = "https://api.indeed.com/v1"
-        self.headers = (
-            {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            if self.api_key
-            else {}
-        )
+class AdzunaJobAdapter(JobDataAdapter):
+    """Adzuna job data adapter."""
+
+    def __init__(self, app_id: str = None, app_key: str = None, country: str = "us"):
+        """Initialize Adzuna adapter."""
+        self.app_id = app_id or settings.adzuna_app_id
+        self.app_key = app_key or settings.adzuna_app_key
+        self.country = country
+        self.base_url = f"https://api.adzuna.com/v1/api/jobs/us"
+        self.headers = {"Content-Type": "application/json"}
 
     @property
     def source_name(self) -> str:
-        return "indeed"
+        return "adzuna"
 
     @property
     def is_available(self) -> bool:
-        return bool(self.api_key)
+        return bool(self.app_id and self.app_key)
 
     async def search_jobs(
         self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
     ) -> List[JobPosting]:
-        """Search jobs on Indeed."""
+        """Search jobs on Adzuna."""
         if not self.is_available:
-            raise Exception("Indeed API key not configured")
+            raise Exception("Adzuna API credentials not configured")
+
+        params = {
+            "app_id": self.app_id,
+            "app_key": self.app_key,
+            "results_per_page": limit,
+            "what": query,
+            # "page": page,
+            # "content-type": "application/json",
+        }
+        if location:
+            params["where"] = location
 
         try:
-            params = {
-                "q": query,
-                "l": location or "",
-                "limit": limit,
-                "start": (page - 1) * limit,
-                "fromage": 30,  # Last 30 days
-                "sort": "date",
-                "format": "json",
-            }
-
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    f"{self.base_url}/jobs",
-                    headers=self.headers,
-                    params=params,
-                    timeout=10.0,
+                    f"{self.base_url}/search/{page}", params=params, timeout=10.0
                 )
 
                 if response.status_code == 200:
                     data = response.json()
-                    return self._parse_jobs(data)
+                    return self._parse_adzuna_jobs(data)
                 else:
-                    logger.error(f"Indeed API error: {response.status_code}")
-                    raise Exception(f"Indeed API error: {response.status_code}")
+                    logger.error(f"Adzuna API error {response.status_code}: {response.text}")
+                    raise Exception(f"Adzuna API error {response.status_code}: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to search jobs on Indeed: {str(e)}")
+            logger.error(f"Failed to fetch jobs from Adzuna: {str(e)}")
             raise
 
     async def get_job_details(self, job_id: str) -> JobPosting:
-        """Get detailed job information from Indeed."""
-        if not self.is_available:
-            raise Exception("Indeed API key not configured")
-
+        """Adzuna doesn't provide a dedicated job details endpoint; simulate by search."""
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/jobs/{job_id}", headers=self.headers, timeout=10.0
-                )
-
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._parse_job_details(data)
-                else:
-                    logger.error(
-                        f"Indeed job details API error: {response.status_code}"
-                    )
-                    raise Exception(
-                        f"Indeed job details API error: {response.status_code}"
-                    )
-
+            search_id = job_id.replace("adzuna_", "")
+            jobs = await self.search_jobs(search_id)
+            return jobs[0] if jobs else None
         except Exception as e:
-            logger.error(f"Failed to get job details from Indeed: {str(e)}")
+            logger.error(f"Failed to get Adzuna job details: {str(e)}")
             raise
 
     async def get_company_jobs(
         self, company_name: str, limit: int = 10
     ) -> List[JobPosting]:
-        """Get jobs from a specific company on Indeed."""
-        return await self.search_jobs(f"company:{company_name}", limit=limit)
+        """Get jobs from a specific company."""
+        return await self.search_jobs(query=f"company:{company_name}", limit=limit)
 
-    def _parse_jobs(self, data: Dict[str, Any]) -> List[JobPosting]:
-        """Parse job data from Indeed API response."""
+    def _parse_adzuna_jobs(self, data: Dict[str, Any]) -> List[JobPosting]:
+        """Parse Adzuna API job data into JobPosting models."""
+        jobs = []
         try:
-            results = data.get("results", [])
-            jobs = []
-
-            for result in results:
+            for item in data.get("results", []):
                 job = JobPosting(
-                    job_id=f"indeed_{result.get('jobkey', '')}",
-                    title=result.get("jobtitle", ""),
-                    company=result.get("company", ""),
-                    location=result.get("formattedLocation", ""),
-                    remote="remote" in result.get("formattedLocation", "").lower(),
-                    description=result.get("snippet", ""),
-                    requirements=self._extract_requirements(result.get("snippet", "")),
-                    work_type=WorkType.FULL_TIME,  # Default
-                    experience_level=ExperienceLevel.MID,  # Default
-                    posted_date=datetime.now() - timedelta(days=1),
-                    application_url=result.get("url", ""),
-                    source="indeed",
-                )
-                jobs.append(job)
-
-            return jobs
-        except Exception as e:
-            logger.error(f"Failed to parse Indeed jobs: {str(e)}")
-            return []
-
-    def _parse_job_details(self, data: Dict[str, Any]) -> JobPosting:
-        """Parse detailed job information from Indeed."""
-        try:
-            return JobPosting(
-                job_id=f"indeed_{data.get('jobkey', '')}",
-                title=data.get("jobtitle", ""),
-                company=data.get("company", ""),
-                location=data.get("formattedLocation", ""),
-                remote="remote" in data.get("formattedLocation", "").lower(),
-                description=data.get("snippet", ""),
-                requirements=self._extract_requirements(data.get("snippet", "")),
-                work_type=WorkType.FULL_TIME,
-                experience_level=ExperienceLevel.MID,
-                posted_date=datetime.now(),
-                application_url=data.get("url", ""),
-                source="indeed",
-            )
-        except Exception as e:
-            logger.error(f"Failed to parse Indeed job details: {str(e)}")
-            raise
-
-    def _extract_requirements(self, description: str) -> List[str]:
-        """Extract job requirements from description."""
-        common_requirements = [
-            "Python",
-            "JavaScript",
-            "React",
-            "Node.js",
-            "AWS",
-            "Docker",
-            "Kubernetes",
-            "SQL",
-            "MongoDB",
-            "PostgreSQL",
-            "Git",
-            "Agile",
-            "Machine Learning",
-            "TensorFlow",
-            "PyTorch",
-            "Scikit-learn",
-        ]
-
-        requirements = []
-        description_lower = description.lower()
-
-        for req in common_requirements:
-            if req.lower() in description_lower:
-                requirements.append(req)
-
-        return requirements
-
-
-class LinkedInJobAdapter(JobDataAdapter):
-    """LinkedIn job data adapter."""
-
-    def __init__(self, api_key: str = None):
-        """Initialize LinkedIn adapter."""
-        self.api_key = api_key or settings.linkedin_api_key
-        self.base_url = "https://api.linkedin.com/v2"
-        self.headers = (
-            {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            if self.api_key
-            else {}
-        )
-
-    @property
-    def source_name(self) -> str:
-        return "linkedin"
-
-    @property
-    def is_available(self) -> bool:
-        return bool(self.api_key)
-
-    async def search_jobs(
-        self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
-    ) -> List[JobPosting]:
-        """Search jobs on LinkedIn."""
-        if not self.is_available:
-            raise Exception("LinkedIn API key not configured")
-
-        try:
-            params = {
-                "keywords": query,
-                "locationName": location or "",
-                "count": limit,
-                "start": (page - 1) * limit,
-            }
-
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/jobSearch",
-                    headers=self.headers,
-                    params=params,
-                    timeout=10.0,
-                )
-
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._parse_linkedin_jobs(data)
-                else:
-                    logger.error(f"LinkedIn API error: {response.status_code}")
-                    raise Exception(f"LinkedIn API error: {response.status_code}")
-
-        except Exception as e:
-            logger.error(f"Failed to search jobs on LinkedIn: {str(e)}")
-            raise
-
-    async def get_job_details(self, job_id: str) -> JobPosting:
-        """Get detailed job information from LinkedIn."""
-        if not self.is_available:
-            raise Exception("LinkedIn API key not configured")
-
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/jobs/{job_id}", headers=self.headers, timeout=10.0
-                )
-
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._parse_linkedin_job_details(data)
-                else:
-                    logger.error(
-                        f"LinkedIn job details API error: {response.status_code}"
-                    )
-                    raise Exception(
-                        f"LinkedIn job details API error: {response.status_code}"
-                    )
-
-        except Exception as e:
-            logger.error(f"Failed to get job details from LinkedIn: {str(e)}")
-            raise
-
-    async def get_company_jobs(
-        self, company_name: str, limit: int = 10
-    ) -> List[JobPosting]:
-        """Get jobs from a specific company on LinkedIn."""
-        return await self.search_jobs(f"company:{company_name}", limit=limit)
-
-    def _parse_linkedin_jobs(self, data: Dict[str, Any]) -> List[JobPosting]:
-        """Parse job data from LinkedIn API response."""
-        try:
-            elements = data.get("elements", [])
-            jobs = []
-
-            for element in elements:
-                job_data = element.get("jobPosting", {})
-
-                job = JobPosting(
-                    job_id=f"linkedin_{element.get('id', '')}",
-                    title=job_data.get("title", ""),
-                    company=job_data.get("companyDetails", {})
-                    .get("company", {})
-                    .get("name", ""),
-                    location=job_data.get("formattedLocation", ""),
-                    remote="remote" in job_data.get("formattedLocation", "").lower(),
-                    description=job_data.get("description", {}).get("text", ""),
-                    requirements=self._extract_requirements(
-                        job_data.get("description", {}).get("text", "")
-                    ),
-                    work_type=self._parse_work_type(job_data.get("employmentType", "")),
+                    job_id=f"adzuna_{item.get('id', '')}",
+                    title=item.get("title", ""),
+                    company=item.get("company", {}).get("display_name", ""),
+                    location=item.get("location", {}).get("display_name", ""),
+                    remote=self._detect_remote(item),
+                    description=item.get("description", ""),
+                    requirements=self._extract_requirements(item.get("description", "")),
+                    work_type=self._parse_work_type(item.get("contract_type", "")),
                     experience_level=self._parse_experience_level(
-                        job_data.get("experienceLevel", "")
+                        item.get("category", {}).get("label", "")
                     ),
-                    posted_date=datetime.now(),
-                    application_url=job_data.get("applyMethod", {}).get(
-                        "companyApplyUrl", ""
-                    ),
-                    source="linkedin",
+                    posted_date=datetime.fromtimestamp(
+                        item.get("created", datetime.now().timestamp())
+                    )
+                    if isinstance(item.get("created"), (int, float))
+                    else datetime.now(),
+                    application_url=item.get("redirect_url", ""),
+                    source="adzuna",
                 )
                 jobs.append(job)
-
-            return jobs
         except Exception as e:
-            logger.error(f"Failed to parse LinkedIn jobs: {str(e)}")
-            return []
+            logger.error(f"Failed to parse Adzuna jobs: {str(e)}")
 
-    def _parse_linkedin_job_details(self, data: Dict[str, Any]) -> JobPosting:
-        """Parse detailed job information from LinkedIn."""
-        try:
-            job_data = data.get("jobPosting", {})
+        return jobs
 
-            return JobPosting(
-                job_id=f"linkedin_{data.get('id', '')}",
-                title=job_data.get("title", ""),
-                company=job_data.get("companyDetails", {})
-                .get("company", {})
-                .get("name", ""),
-                location=job_data.get("formattedLocation", ""),
-                remote="remote" in job_data.get("formattedLocation", "").lower(),
-                description=job_data.get("description", {}).get("text", ""),
-                requirements=self._extract_requirements(
-                    job_data.get("description", {}).get("text", "")
-                ),
-                work_type=self._parse_work_type(job_data.get("employmentType", "")),
-                experience_level=self._parse_experience_level(
-                    job_data.get("experienceLevel", "")
-                ),
-                posted_date=datetime.now(),
-                application_url=job_data.get("applyMethod", {}).get(
-                    "companyApplyUrl", ""
-                ),
-                source="linkedin",
-            )
-        except Exception as e:
-            logger.error(f"Failed to parse LinkedIn job details: {str(e)}")
-            raise
+    def _detect_remote(self, item: Dict[str, Any]) -> bool:
+        """Detect if the job may be remote based on description."""
+        desc = (item.get("description") or "").lower()
+        loc = (item.get("location", {}).get("display_name") or "").lower()
+        return "remote" in desc or "remote" in loc
 
     def _extract_requirements(self, description: str) -> List[str]:
-        """Extract job requirements from description."""
+        """Extract skills from job description."""
         common_requirements = [
-            "Python",
-            "JavaScript",
-            "React",
-            "Node.js",
-            "AWS",
-            "Docker",
-            "Kubernetes",
-            "SQL",
-            "MongoDB",
-            "PostgreSQL",
-            "Git",
-            "Agile",
-            "Machine Learning",
-            "TensorFlow",
-            "PyTorch",
-            "Scikit-learn",
+            "Python", "Java", "C++", "JavaScript", "React", "Node.js",
+            "AWS", "Docker", "Kubernetes", "SQL", "Linux", "TensorFlow", "PyTorch"
         ]
 
-        requirements = []
-        description_lower = description.lower()
+        found = []
+        desc_lower = description.lower()
+        for skill in common_requirements:
+            if skill.lower() in desc_lower:
+                found.append(skill)
+        return found
 
-        for req in common_requirements:
-            if req.lower() in description_lower:
-                requirements.append(req)
-
-        return requirements
-
-    def _parse_work_type(self, employment_type: str) -> WorkType:
-        """Parse work type from employment type string."""
-        if not employment_type:
+    def _parse_work_type(self, contract_type: str) -> WorkType:
+        """Map Adzuna contract type to internal WorkType enum."""
+        if not contract_type:
             return WorkType.FULL_TIME
-
-        employment_type_lower = employment_type.lower()
-
-        if "part" in employment_type_lower:
+        lower = contract_type.lower()
+        if "part" in lower:
             return WorkType.PART_TIME
-        elif "contract" in employment_type_lower:
+        elif "contract" in lower:
             return WorkType.CONTRACT
-        elif "freelance" in employment_type_lower:
-            return WorkType.FREELANCE
-        elif "intern" in employment_type_lower:
+        elif "intern" in lower:
             return WorkType.INTERNSHIP
-        else:
-            return WorkType.FULL_TIME
+        elif "freelance" in lower:
+            return WorkType.FREELANCE
+        return WorkType.FULL_TIME
 
-    def _parse_experience_level(self, experience_level: str) -> ExperienceLevel:
-        """Parse experience level from string."""
-        if not experience_level:
+    def _parse_experience_level(self, category_label: str) -> ExperienceLevel:
+        """Estimate experience level from category or label."""
+        if not category_label:
             return ExperienceLevel.MID
-
-        experience_lower = experience_level.lower()
-
-        if "entry" in experience_lower or "junior" in experience_lower:
+        label = category_label.lower()
+        if "junior" in label or "entry" in label:
             return ExperienceLevel.ENTRY
-        elif "senior" in experience_lower:
+        elif "senior" in label:
             return ExperienceLevel.SENIOR
-        elif "lead" in experience_lower:
+        elif "lead" in label:
             return ExperienceLevel.LEAD
-        elif "principal" in experience_lower:
-            return ExperienceLevel.PRINCIPAL
-        elif "executive" in experience_lower:
+        elif "executive" in label:
             return ExperienceLevel.EXECUTIVE
-        else:
-            return ExperienceLevel.MID
-
-
-class GreenhouseJobAdapter(JobDataAdapter):
-    """Greenhouse job data adapter."""
-
-    def __init__(self, api_key: str = None):
-        """Initialize Greenhouse adapter."""
-        self.api_key = api_key or settings.greenhouse_api_key
-        self.base_url = "https://boards-api.greenhouse.io/v1"
-        self.headers = (
-            {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            if self.api_key
-            else {}
-        )
-
-    @property
-    def source_name(self) -> str:
-        return "greenhouse"
-
-    @property
-    def is_available(self) -> bool:
-        return bool(self.api_key)
-
-    async def search_jobs(
-        self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
-    ) -> List[JobPosting]:
-        """Search jobs on Greenhouse."""
-        if not self.is_available:
-            raise Exception("Greenhouse API key not configured")
-
-        try:
-            params = {
-                "q": query,
-                "location": location or "",
-                "limit": limit,
-                "offset": (page - 1) * limit,
-            }
-
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/jobs",
-                    headers=self.headers,
-                    params=params,
-                    timeout=10.0,
-                )
-
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._parse_greenhouse_jobs(data)
-                else:
-                    logger.error(f"Greenhouse API error: {response.status_code}")
-                    raise Exception(f"Greenhouse API error: {response.status_code}")
-
-        except Exception as e:
-            logger.error(f"Failed to search jobs on Greenhouse: {str(e)}")
-            raise
-
-    async def get_job_details(self, job_id: str) -> JobPosting:
-        """Get detailed job information from Greenhouse."""
-        if not self.is_available:
-            raise Exception("Greenhouse API key not configured")
-
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/jobs/{job_id}", headers=self.headers, timeout=10.0
-                )
-
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._parse_greenhouse_job_details(data)
-                else:
-                    logger.error(
-                        f"Greenhouse job details API error: {response.status_code}"
-                    )
-                    raise Exception(
-                        f"Greenhouse job details API error: {response.status_code}"
-                    )
-
-        except Exception as e:
-            logger.error(f"Failed to get job details from Greenhouse: {str(e)}")
-            raise
-
-    async def get_company_jobs(
-        self, company_name: str, limit: int = 10
-    ) -> List[JobPosting]:
-        """Get jobs from a specific company on Greenhouse."""
-        return await self.search_jobs(f"company:{company_name}", limit=limit)
-
-    def _parse_greenhouse_jobs(self, data: Dict[str, Any]) -> List[JobPosting]:
-        """Parse job data from Greenhouse API response."""
-        try:
-            jobs_data = data.get("jobs", [])
-            jobs = []
-
-            for job_data in jobs_data:
-                job = JobPosting(
-                    job_id=f"greenhouse_{job_data.get('id', '')}",
-                    title=job_data.get("title", ""),
-                    company=job_data.get("company", {}).get("name", ""),
-                    location=job_data.get("location", {}).get("name", ""),
-                    remote=job_data.get("remote", False),
-                    description=job_data.get("content", ""),
-                    requirements=self._extract_requirements(
-                        job_data.get("content", "")
-                    ),
-                    work_type=WorkType.FULL_TIME,  # Default
-                    experience_level=ExperienceLevel.MID,  # Default
-                    posted_date=datetime.now(),
-                    application_url=job_data.get("absolute_url", ""),
-                    source="greenhouse",
-                )
-                jobs.append(job)
-
-            return jobs
-        except Exception as e:
-            logger.error(f"Failed to parse Greenhouse jobs: {str(e)}")
-            return []
-
-    def _parse_greenhouse_job_details(self, data: Dict[str, Any]) -> JobPosting:
-        """Parse detailed job information from Greenhouse."""
-        try:
-            return JobPosting(
-                job_id=f"greenhouse_{data.get('id', '')}",
-                title=data.get("title", ""),
-                company=data.get("company", {}).get("name", ""),
-                location=data.get("location", {}).get("name", ""),
-                remote=data.get("remote", False),
-                description=data.get("content", ""),
-                requirements=self._extract_requirements(data.get("content", "")),
-                work_type=WorkType.FULL_TIME,
-                experience_level=ExperienceLevel.MID,
-                posted_date=datetime.now(),
-                application_url=data.get("absolute_url", ""),
-                source="greenhouse",
-            )
-        except Exception as e:
-            logger.error(f"Failed to parse Greenhouse job details: {str(e)}")
-            raise
-
-    def _extract_requirements(self, description: str) -> List[str]:
-        """Extract job requirements from description."""
-        common_requirements = [
-            "Python",
-            "JavaScript",
-            "React",
-            "Node.js",
-            "AWS",
-            "Docker",
-            "Kubernetes",
-            "SQL",
-            "MongoDB",
-            "PostgreSQL",
-            "Git",
-            "Agile",
-            "Machine Learning",
-            "TensorFlow",
-            "PyTorch",
-            "Scikit-learn",
-        ]
-
-        requirements = []
-        description_lower = description.lower()
-
-        for req in common_requirements:
-            if req.lower() in description_lower:
-                requirements.append(req)
-
-        return requirements
-
-
-class MockJobAdapter(JobDataAdapter):
-    """Mock job data adapter for testing."""
-
-    @property
-    def source_name(self) -> str:
-        return "mock"
-
-    @property
-    def is_available(self) -> bool:
-        return True
-
-    async def search_jobs(
-        self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
-    ) -> List[JobPosting]:
-        """Get mock job search results."""
-        return [
-            JobPosting(
-                job_id=f"mock_{i}",
-                title=f"Mock {query} Position {i}",
-                company=f"Mock Company {i}",
-                location=location or "San Francisco, CA",
-                remote=i % 2 == 0,
-                salary_min=80000 + (i * 10000),
-                salary_max=120000 + (i * 10000),
-                description=f"Mock job description for {query} position {i}",
-                requirements=["Python", "JavaScript", "React", "AWS"],
-                work_type=WorkType.FULL_TIME,
-                experience_level=ExperienceLevel.MID,
-                posted_date=datetime.now() - timedelta(days=i),
-                application_url=f"https://mockcompany{i}.com/jobs/{i}",
-                source="mock",
-            )
-            for i in range(1, limit + 1)
-        ]
-
-    async def get_job_details(self, job_id: str) -> JobPosting:
-        """Get mock job details."""
-        return JobPosting(
-            job_id=job_id,
-            title="Mock Software Engineer",
-            company="Mock Company",
-            location="San Francisco, CA",
-            remote=True,
-            salary_min=100000,
-            salary_max=150000,
-            description="Mock job description for software engineer position",
-            requirements=["Python", "JavaScript", "React", "AWS"],
-            work_type=WorkType.FULL_TIME,
-            experience_level=ExperienceLevel.MID,
-            posted_date=datetime.now(),
-            application_url="https://mockcompany.com/jobs/1",
-            source="mock",
-        )
-
-    async def get_company_jobs(
-        self, company_name: str, limit: int = 10
-    ) -> List[JobPosting]:
-        """Get mock company jobs."""
-        return await self.search_jobs(f"company:{company_name}", limit=limit)
+        return ExperienceLevel.MID

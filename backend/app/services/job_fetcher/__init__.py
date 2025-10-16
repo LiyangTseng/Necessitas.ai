@@ -1,25 +1,15 @@
 """
 Job Fetcher Service
 
-Unified service for fetching job postings from multiple sources.
-Uses adapter pattern to support different job platforms.
+Unified service for fetching job postings from Adzuna API.
 """
 
 from .service import JobFetcher
-from .adapters import (
-    IndeedJobAdapter,
-    LinkedInJobAdapter,
-    GreenhouseJobAdapter,
-    MockJobAdapter,
-)
-from .models import JobPosting, JobSearchResult
+from .adapters import AdzunaJobAdapter
+from .models import JobPosting
 
 __all__ = [
     "JobFetcher",
-    "IndeedJobAdapter",
-    "LinkedInJobAdapter",
-    "GreenhouseJobAdapter",
-    "MockJobAdapter",
+    "AdzunaJobAdapter",
     "JobPosting",
-    "JobSearchResult",
 ]
