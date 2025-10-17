@@ -56,10 +56,10 @@ class TestJobFetcher(AsyncTestCase):
             self.create_mock_job_posting("job_1", "Python Developer", "Company A"),
             self.create_mock_job_posting("job_2", "JavaScript Developer", "Company B")
         ]
-        self.mock_adapter.search_jobs = AsyncMock(return_value=mock_jobs)
+        self.mock_adapter.search_jobs = Mock(return_value=mock_jobs)
 
         # Test search
-        result = self.run_async(job_fetcher.search_jobs("Python Developer", "San Francisco", 10, 1))
+        result = job_fetcher.search_jobs("Python Developer", "San Francisco", 10, 1)
 
         # Verify results
         self.assertEqual(len(result), 2)
