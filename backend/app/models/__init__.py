@@ -28,12 +28,6 @@ from .user import (
     WorkExperience,
     CareerPreference,
     UserProfile,
-
-    # AI/ML models
-    JobRecommendation,
-    SkillGapAnalysis,
-    CareerRoadmap,
-    MarketInsight,
 )
 
 # Job models
@@ -44,7 +38,7 @@ from .job import (
     JobFilter,
     JobAlert,
     JobApplication,
-    SalaryData,
+    SalaryData
 )
 
 # Company models
@@ -58,6 +52,11 @@ from .company import (
     CompanyNews,
 )
 
+# Analysis models
+from .analysis import (
+    MatchAnalysis,
+    DetailedScores
+)
 # Re-export all models for easy importing
 __all__ = [
     # Base enums
@@ -80,12 +79,6 @@ __all__ = [
     "CareerPreference",
     "UserProfile",
 
-    # AI/ML models
-    "JobRecommendation",
-    "SkillGapAnalysis",
-    "CareerRoadmap",
-    "MarketInsight",
-
     # Job models
     "JobPosting",
     "JobSearchResult",
@@ -94,6 +87,12 @@ __all__ = [
     "JobAlert",
     "JobApplication",
     "SalaryData",
+
+    # Analysis models
+    "MatchAnalysis",
+    "DetailedScores",
+    "SkillGapAnalysis",
+    "CareerRoadmap",
 
     # Company models
     "CompanyInfo",

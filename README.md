@@ -10,25 +10,20 @@ An AI-powered career guidance system that analyzes resumes, matches job opportun
 - AWS CLI
 
 ### **Setup (One-time)**
+#### Clone repo
 ```bash
 # Clone and setup
 git clone [<repository-url>](https://github.com/LiyangTseng/necessitas.ai)
 cd necessitas.ai
-
+```
+Set up environment dependency
+```bash
 python3.11 -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 pip install -r requirements.txt
-
 # Install pre-commit hooks
 pre-commit install
 ```
-
-### **Before Every Commit**
-Can manually check if the formatting issues are fixed
-```bash
-pre-commit run --all-files --verbose
-```
-
 
 ## 🎯 **Hackathon Project Overview**
 
@@ -86,6 +81,8 @@ python -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 # Set up PYTHONPATH
 export PYTHONPATH=backend/app:$PYTHONPATH
+
+[TODO]
 # Install dependencies
 pip install -r backend/requirements.txt
 
@@ -99,8 +96,15 @@ cd backend && python app/main.py
 cd frontend && npm run dev
 ```
 
-### **2. Test the System**
+### **2. Deploy AWS Bedrock AgentCore runtime**
 ```bash
+make agentdeploy
+```
+Type enter when being asked on deployment details. Theoretically we should be able to invoke agent response using commands such as `agentcore invoke '{"prompt": "Hello"}'`
+
+### **3. Test the System**
+```bash
+[TODO]
 # Test resume upload
 curl -X POST "http://localhost:8000/api/resume/upload" \
   -F "file=@sample_resume.pdf"

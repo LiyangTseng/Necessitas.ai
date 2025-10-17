@@ -10,6 +10,7 @@ from strands import Agent, tool
 from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemoryConfig, RetrievalConfig
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter
+from tools import find_job_matches, parse_resume, search_jobs, get_company_info
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 
 app = BedrockAgentCoreApp()
@@ -46,7 +47,7 @@ def read_messages(agent_name):
     return [m for m in shared_memory.get("messages", []) if m["sender"] != agent_name]
 
 # --- Agent Initialization ---
-def create_agent(name, system_prompt):
+def create_agent(name, system_prompt, tools):
     memory_config = AgentCoreMemoryConfig(
         memory_id=MEMORY_ID,
         session_id='default',
@@ -57,13 +58,25 @@ def create_agent(name, system_prompt):
         model=MODEL_ID,
         session_manager=AgentCoreMemorySessionManager(memory_config, REGION),
         system_prompt=system_prompt,
-        tools=[calculate]
+        tools=tools
     )
 
 agents = {
-    "JobAdvisor": create_agent("JobAdvisor", "You are a career expert who provides job suggestions based on user resume and goals."),
-    "LearningPathAdvisor": create_agent("LearningPathAdvisor", "You are a learning path advisor who gives study/training suggestions."),
-    "SummaryAdvisor": create_agent("SummaryAdvisor", "You are a summarizer who consolidates advice from other agents and gives a career plan.")
+    "JobAdvisor": create_agent(
+        "JobAdvisor",
+        "You are a career expert who provides job suggestions based on user resume and goals.",
+        [find_job_matches, parse_resume, search_jobs, get_company_info]
+    ),
+    "LearningPathAdvisor": create_agent(
+        "LearningPathAdvisor",
+        "You are a learning path advisor who gives study/training suggestions.",
+        [find_job_matches, parse_resume, search_jobs, get_company_info]
+    ),
+    "SummaryAdvisor": create_agent(
+        "SummaryAdvisor",
+        "You are a summarizer who consolidates advice from other agents and gives a career plan.",
+        [find_job_matches, parse_resume, search_jobs, get_company_info]
+    ),
 }
 
 # --- Entrypoint ---
