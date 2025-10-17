@@ -5,13 +5,14 @@ Handles job data retrieval from the Adzuna API.
 
 from typing import List, Optional
 from datetime import datetime
-from loguru import logger
+import logging
 
-from base_adapter import JobDataAdapter
-from .adapters import AdzunaJobAdapter
-from .models import JobPosting, JobSearchResult, JobMatchScore
-from app.core.config import settings
+from services.job_fetcher.base_adapter import JobDataAdapter
+from services.job_fetcher.adapters import AdzunaJobAdapter
+from models.job import JobPosting, JobSearchResult, JobMatchScore
+from core.config import settings
 
+logger = logging.getLogger(__name__)
 
 class JobFetcher:
     """Service for retrieving job data from Adzuna."""
@@ -148,3 +149,14 @@ class JobFetcher:
                 seen.add(key)
                 unique_jobs.append(job)
         return unique_jobs
+
+
+
+if __name__ == "__main__":
+    import asyncio
+    async def main():
+        job_fetcher = JobFetcher()
+        results = await job_fetcher.search_jobs("Software Engineer Intern", limit=20)
+        for job in results:
+            print(f"{job.title} - {job.company} ({job.location})")
+    asyncio.run(main())
