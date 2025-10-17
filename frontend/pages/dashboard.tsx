@@ -120,7 +120,7 @@ export default function Dashboard() {
   return (
     <>
       <Head>
-        <title>Dashboard - CareerCompassAI</title>
+        <title>Dashboard - necessitas.ai</title>
         <meta name="description" content="Your personalized career dashboard" />
       </Head>
 

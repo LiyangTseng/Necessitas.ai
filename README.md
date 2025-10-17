@@ -5,13 +5,17 @@ An AI-powered career guidance system that analyzes resumes, matches job opportun
 
 ## 🚀 **Quick Start**
 
+### Prerequisites
+- Python > 3.11
+- AWS CLI
+
 ### **Setup (One-time)**
 ```bash
 # Clone and setup
 git clone [<repository-url>](https://github.com/LiyangTseng/necessitas.ai)
 cd necessitas.ai
 
-python -m venv env
+python3.11 -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 pip install -r requirements.txt
 
@@ -28,9 +32,9 @@ pre-commit run --all-files --verbose
 
 ## 🎯 **Hackathon Project Overview**
 
-**Built for**: AWS AI Agent Global Hackathon 2025
-**Core Value**: Personalized career guidance and job matching
-**Technology**: AWS Bedrock AgentCore + FastAPI + Next.js + ML Analysis
+- **Built for**: AWS AI Agent Global Hackathon 2025
+- **Core Value**: Personalized career guidance and job matching
+- **Technology**: AWS Bedrock AgentCore + FastAPI + Next.js + ML Analysis
 
 ## System Architecture
 ```mermaid
@@ -80,7 +84,8 @@ flowchart TD
 # Create virtual environment
 python -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
-
+# Set up PYTHONPATH
+export PYTHONPATH=backend/app:$PYTHONPATH
 # Install dependencies
 pip install -r backend/requirements.txt
 

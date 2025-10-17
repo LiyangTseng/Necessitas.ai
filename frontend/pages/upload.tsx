@@ -63,7 +63,7 @@ export default function UploadPage() {
   return (
     <>
       <Head>
-        <title>Upload Resume - CareerCompassAI</title>
+        <title>Upload Resume - necessitas.ai</title>
         <meta name="description" content="Upload your resume for AI-powered analysis" />
       </Head>
 

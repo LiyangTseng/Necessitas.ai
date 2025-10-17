@@ -129,6 +129,8 @@ temp/
 # AWS
 .aws/
 aws-exports.js
+.bedrock_agentcore.yaml
+backend/app/agents/bedrock_agent/AWSCLIV2.pkg
 
 # CDK
 cdk.out/
@@ -200,7 +202,6 @@ data/
 *.parquet
 
 # Model files
-models/
 *.pkl
 *.joblib
 *.h5

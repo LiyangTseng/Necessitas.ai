@@ -9,7 +9,7 @@ from datetime import datetime
 import json
 from loguru import logger
 
-from app.models.user_profile import (
+from app.models import (
     UserProfile,
     Skill,
     WorkExperience,

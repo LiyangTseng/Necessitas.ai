@@ -1,7 +1,7 @@
 """
-CareerCompassAI FastAPI Backend
+necessitas.ai FastAPI Backend
 
-Main entry point for the CareerCompassAI API server.
+Main entry point for the necessitas.ai API server.
 """
 
 from fastapi import FastAPI, HTTPException
@@ -22,19 +22,19 @@ console = Console()
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
-    console.print("🚀 Starting CareerCompassAI backend...", style="bold green")
+    console.print("🚀 Starting necessitas.ai backend...", style="bold green")
     await init_db()
     console.print("✅ Database initialized", style="bold green")
 
     yield
 
     # Shutdown
-    console.print("🛑 Shutting down CareerCompassAI backend...", style="bold red")
+    console.print("🛑 Shutting down necessitas.ai backend...", style="bold red")
 
 
 # Create FastAPI app
 app = FastAPI(
-    title="CareerCompassAI API",
+    title="necessitas.ai API",
     description="Intelligent career path recommendation system",
     version="1.0.0",
     lifespan=lifespan,
@@ -63,7 +63,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root():
     """Root endpoint."""
     return {
-        "message": "CareerCompassAI API",
+        "message": "necessitas.ai API",
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",
@@ -73,7 +73,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "CareerCompassAI", "version": "1.0.0"}
+    return {"status": "healthy", "service": "necessitas.ai", "version": "1.0.0"}
 
 
 if __name__ == "__main__":

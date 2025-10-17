@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>CareerCompassAI - Intelligent Career Guidance</title>
+        <title>necessitas.ai - Intelligent Career Guidance</title>
         <meta name="description" content="AI-powered career guidance and job matching platform" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -62,7 +62,7 @@ export default function Home() {
             <div className="flex justify-between items-center py-6">
               <div className="flex items-center">
                 <Briefcase className="w-8 h-8 text-indigo-600" />
-                <span className="ml-2 text-2xl font-bold text-gray-900">CareerCompassAI</span>
+                <span className="ml-2 text-2xl font-bold text-gray-900">necessitas.ai</span>
               </div>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/dashboard" className="text-gray-600 hover:text-indigo-600">Dashboard</Link>
@@ -148,7 +148,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                How CareerCompassAI Works
+                How necessitas.ai Works
               </h2>
               <p className="text-xl text-gray-600">
                 Our AI-powered platform provides comprehensive career guidance
@@ -185,7 +185,7 @@ export default function Home() {
                 Ready to Advance Your Career?
               </h2>
               <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-                Join thousands of professionals who have found their dream jobs with CareerCompassAI
+                Join thousands of professionals who have found their dream jobs with necessitas.ai
               </p>
               <Link
                 href="/upload"
@@ -205,7 +205,7 @@ export default function Home() {
             <div className="text-center">
               <div className="flex items-center justify-center mb-4">
                 <Briefcase className="w-8 h-8 text-indigo-400" />
-                <span className="ml-2 text-2xl font-bold">CareerCompassAI</span>
+                <span className="ml-2 text-2xl font-bold">necessitas.ai</span>
               </div>
               <p className="text-gray-400 mb-4">
                 Powered by AWS Bedrock AgentCore • Built for AWS AI Agent Global Hackathon 2025

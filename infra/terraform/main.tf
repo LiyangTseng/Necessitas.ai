@@ -1,5 +1,5 @@
-# CareerCompassAI Infrastructure
-# AWS Infrastructure for CareerCompassAI using Terraform
+# necessitas.ai Infrastructure
+# AWS Infrastructure for necessitas.ai using Terraform
 
 terraform {
   required_version = ">= 1.0"
@@ -241,7 +241,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 # API Gateway
 resource "aws_api_gateway_rest_api" "careercompass_api" {
   name        = "${var.project_name}-api"
-  description = "CareerCompassAI API Gateway"
+  description = "necessitas.ai API Gateway"
 
   endpoint_configuration {
     types = ["REGIONAL"]

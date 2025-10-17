@@ -8,13 +8,13 @@ Concrete implementations of job data adapters for different sources.
 import httpx
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from loguru import logger
+import logging
 
-from app.services.job_fetcher.models import JobPosting, WorkType, ExperienceLevel
-from app.core.config import settings
+from services.job_fetcher.base_adapter import JobDataAdapter
+from models.job import JobPosting, WorkType, ExperienceLevel
+from core.config import settings
 
-from .base_adapter import JobDataAdapter
-
+logger = logging.getLogger(__name__)
 
 class AdzunaJobAdapter(JobDataAdapter):
     """Adzuna job data adapter."""

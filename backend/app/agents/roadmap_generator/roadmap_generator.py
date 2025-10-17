@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from loguru import logger
 
-from app.models.user_profile import UserProfile, CareerRoadmap, SkillGapAnalysis
+from app.models import UserProfile, CareerRoadmap, SkillGapAnalysis
 
 
 class RoadmapGenerator:
@@ -98,7 +98,7 @@ class RoadmapGenerator:
     async def _get_user_profile(self, user_id: str) -> UserProfile:
         """Get user profile from database."""
         # Mock implementation - in real app, fetch from database
-        from app.models.user_profile import UserProfile, Skill, CareerPreference
+        from app.models import UserProfile, Skill, CareerPreference
 
         return UserProfile(
             user_id=user_id,

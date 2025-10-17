@@ -38,7 +38,8 @@ jobs:
     - name: Run Python tests
       run: |
         echo "Running Python tests..."
-        python tests/run_tests.py
+        export PYTHONPATH=$PWD/backend/app:$PYTHONPATH
+        python backend/app/tests/run_tests.py
         echo "Python tests completed"
 
   security-scan:
