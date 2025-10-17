@@ -9,7 +9,7 @@ configure:
 
 # 啟動 AgentCore
 launch:
-	agentcore launch
+	agentcore launch --auto-update-on-conflict
 
 # 查看 AgentCore 狀態
 status:
