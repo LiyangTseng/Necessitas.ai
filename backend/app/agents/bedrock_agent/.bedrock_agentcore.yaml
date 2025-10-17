@@ -23,7 +23,7 @@ agents:
     bedrock_agentcore:
       agent_id: bedrock_agent-VLBeXl6Jo1
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:355444226013:runtime/bedrock_agent-VLBeXl6Jo1
-      agent_session_id: null
+      agent_session_id: a7152802-58bc-4f54-82f9-ae7e35fe961f
     codebuild:
       project_name: bedrock-agentcore-bedrock_agent-builder
       execution_role: arn:aws:iam::355444226013:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-b0f5e41dff
@@ -34,7 +34,7 @@ agents:
       memory_arn: null
       memory_name: bedrock_agent_memory
       event_expiry_days: 30
-      first_invoke_memory_check_done: false
+      first_invoke_memory_check_done: true
       was_created_by_toolkit: false
     authorizer_configuration: null
     request_header_configuration: null
