@@ -46,6 +46,29 @@ class JobPosting:
         if self.company_info is None:
             self.company_info = {}
 
+    def __str__(self) -> str:
+        # use multiple lines for better readability
+        return f"""JobPosting(
+            job_id={self.job_id},
+            title={self.title},
+            company={self.company},
+            location={self.location},
+            remote={self.remote},
+            salary_min={self.salary_min},
+            salary_max={self.salary_max},
+            currency={self.currency},
+            description={self.description},
+            requirements={self.requirements},
+            preferred_skills={self.preferred_skills},
+            benefits={self.benefits},
+            work_type={self.work_type},
+            experience_level={self.experience_level},
+            posted_date={self.posted_date},
+            application_deadline={self.application_deadline},
+            application_url={self.application_url},
+            source={self.source},
+            company_info={self.company_info}
+        )"""
 
 @dataclass
 class JobSearchResult:

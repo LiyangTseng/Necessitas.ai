@@ -153,60 +153,16 @@ class UserProfile(BaseModel):
             datetime: lambda v: v.isoformat()
         }
 
-
-# ========== AI/ML Models ==========
-
-class JobRecommendation(BaseModel):
-    """Job recommendation model."""
-    job_posting: 'JobPosting'  # Forward reference
-    match_score: float = Field(ge=0, le=100)
-    match_reasons: List[str] = []
-    skill_matches: List[str] = []
-    skill_gaps: List[str] = []
-    salary_fit: bool = True
-    location_fit: bool = True
-    experience_fit: bool = True
-
-
-class SkillGapAnalysis(BaseModel):
-    """Skill gap analysis model."""
-    user_id: str
-    target_role: str
-    current_skills: List[str] = []
-    required_skills: List[str] = []
-    missing_skills: List[str] = []
-    developing_skills: List[str] = []
-    strong_skills: List[str] = []
-    recommendations: List[str] = []
-    priority_skills: List[str] = []
-    learning_path: List[Dict[str, Any]] = []
-
-
-class CareerRoadmap(BaseModel):
-    """Career roadmap model."""
-    user_id: str
-    target_role: str
-    current_position: str
-    timeline_months: int
-    milestones: List[Dict[str, Any]] = []
-    skill_development_plan: List[Dict[str, Any]] = []
-    networking_goals: List[str] = []
-    certification_goals: List[str] = []
-    experience_goals: List[str] = []
-    estimated_salary_progression: List[Dict[str, Any]] = []
-
-
-class MarketInsight(BaseModel):
-    """Market insight model."""
-    insight_id: str
-    title: str
-    description: str
-    category: str
-    relevance_score: float = Field(ge=0, le=1)
-    source: str
-    published_date: datetime
-    tags: List[str] = []
-    impact_level: str = "medium"  # low, medium, high
-    actionable: bool = True
-    related_skills: List[str] = []
-    related_roles: List[str] = []
+    def __str__(self) -> str:
+        # use multiple lines for better readability
+        return f"""UserProfile(
+            user_id={self.user_id},
+            personal_info={self.personal_info},
+            skills={self.skills},
+            experience={self.experience},
+            education={self.education},
+            certifications={self.certifications},
+            preferences={self.preferences},
+            created_at={self.created_at},
+            updated_at={self.updated_at}
+        )"""
