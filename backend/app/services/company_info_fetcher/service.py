@@ -6,10 +6,11 @@ Main service class that orchestrates company data retrieval from multiple source
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-from loguru import logger
+import logging
+logger = logging.getLogger(__name__)
 
 from .base_adapter import CompanyDataAdapter
-from .adapters import CrunchbaseCompanyAdapter, LinkedInCompanyAdapter, MockCompanyAdapter
+from .adapters import CrunchbaseCompanyAdapter, MockCompanyAdapter
 from models import CompanyInfo, FundingRound, CompanySearchResult
 from core.config import settings
 
@@ -34,17 +35,6 @@ class CompanyInfoFetcher:
                 logger.warning("Crunchbase adapter not available - API key missing")
         except Exception as e:
             logger.warning(f"Failed to setup Crunchbase adapter: {e}")
-
-        # Add LinkedIn adapter
-        try:
-            linkedin_adapter = LinkedInCompanyAdapter()
-            if linkedin_adapter.is_available:
-                self.adapters["linkedin"] = linkedin_adapter
-                logger.info("LinkedIn adapter initialized")
-            else:
-                logger.warning("LinkedIn adapter not available - API key missing")
-        except Exception as e:
-            logger.warning(f"Failed to setup LinkedIn adapter: {e}")
 
         # Always add mock adapter as fallback
         self.adapters["mock"] = MockCompanyAdapter()
