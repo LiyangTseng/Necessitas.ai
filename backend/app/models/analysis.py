@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any
 
-from models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
-from models.user import UserProfile
-from models.job import JobPosting
+from app.models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
+from app.models.user import UserProfile
+from app.models.job import JobPosting
 
 @dataclass
 class DetailedScores:
