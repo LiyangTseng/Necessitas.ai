@@ -11,7 +11,7 @@ import numpy as np
 # from sklearn.feature_extraction.text import TfidfVectorizer
 # from sklearn.metrics.pairwise import cosine_similarity
 # from sentence_transformers import SentenceTransformer
-from models import (
+from app.models import (
     UserProfile,
     JobPosting,
     WorkType,
@@ -24,7 +24,7 @@ from models import (
 import logging
 logger = logging.getLogger(__name__)
 
-from core.config import settings
+from app.core.config import settings
 
 class JobMatchingEngine:
     """Advanced job-candidate matching engine using ML and multi-dimensional scoring."""

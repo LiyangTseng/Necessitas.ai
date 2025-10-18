@@ -53,7 +53,7 @@ class Education:
     """Education entry."""
 
     degree: str = ""
-    field: str = ""
+    major: str = ""
     school: str = ""
     location: str = ""
     start_date: Optional[date] = None
@@ -106,8 +106,9 @@ class ResumeParser:
         # Load spaCy model
         try:
             self.nlp = spacy.load("en_core_web_sm")
-        except OSError:
-            logger.warning("spaCy model not found, using basic parsing")
+            logger.info("spaCy NLP Model Loaded (en_core_web_sm)")
+        except Exception as e:
+            logger.warning(f"spaCy failed to load — falling back to basic parsing ({e})")
             self.nlp = None
 
         # Initialize matcher for skill extraction
