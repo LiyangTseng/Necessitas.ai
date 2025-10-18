@@ -35,7 +35,7 @@ class AdzunaJobAdapter(JobDataAdapter):
     def is_available(self) -> bool:
         return bool(self.app_id and self.app_key)
 
-    async def search_jobs(
+    def search_jobs(
         self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
     ) -> List[JobPosting]:
         """Search jobs on Adzuna."""
@@ -54,8 +54,8 @@ class AdzunaJobAdapter(JobDataAdapter):
             params["where"] = location
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
+            with httpx.Client() as client:
+                response = client.get(
                     f"{self.base_url}/search/{page}", params=params, timeout=10.0
                 )
 
@@ -70,21 +70,21 @@ class AdzunaJobAdapter(JobDataAdapter):
             logger.error(f"Failed to fetch jobs from Adzuna: {str(e)}")
             raise
 
-    async def get_job_details(self, job_id: str) -> JobPosting:
+    def get_job_details(self, job_id: str) -> JobPosting:
         """Adzuna doesn't provide a dedicated job details endpoint; simulate by search."""
         try:
             search_id = job_id.replace("adzuna_", "")
-            jobs = await self.search_jobs(search_id)
+            jobs = self.search_jobs(search_id)
             return jobs[0] if jobs else None
         except Exception as e:
             logger.error(f"Failed to get Adzuna job details: {str(e)}")
             raise
 
-    async def get_company_jobs(
+    def get_company_jobs(
         self, company_name: str, limit: int = 10
     ) -> List[JobPosting]:
         """Get jobs from a specific company."""
-        return await self.search_jobs(query=f"company:{company_name}", limit=limit)
+        return self.search_jobs(query=f"company:{company_name}", limit=limit)
 
     def _parse_adzuna_jobs(self, data: Dict[str, Any]) -> List[JobPosting]:
         """Parse Adzuna API job data into JobPosting models."""

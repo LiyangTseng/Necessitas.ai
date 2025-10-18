@@ -130,6 +130,7 @@ temp/
 .aws/
 aws-exports.js
 .bedrock_agentcore.yaml
+.bedrock_agentcore/
 backend/app/agents/bedrock_agent/AWSCLIV2.pkg
 
 # CDK

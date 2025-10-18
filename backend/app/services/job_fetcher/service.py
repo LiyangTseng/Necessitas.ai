@@ -27,7 +27,7 @@ class JobFetcher:
             logger.error(f"Failed to initialize Adzuna adapter: {e}")
             raise
 
-    async def search_jobs(
+    def search_jobs(
         self, query: str, location: Optional[str] = None, limit: int = 20, page: int = 1
     ) -> List[JobPosting]:
         """
@@ -45,14 +45,14 @@ class JobFetcher:
         start_time = datetime.now()
         try:
             logger.info(f"Searching Adzuna for '{query}' in {location or 'all locations'}")
-            jobs = await self.adapter.search_jobs(query, location, limit, page)
+            jobs = self.adapter.search_jobs(query, location, limit, page)
             logger.info(f"Fetched {len(jobs)} jobs from Adzuna in {(datetime.now() - start_time).total_seconds()*1000:.2f} ms")
             return self._deduplicate_jobs(jobs)[:limit]
         except Exception as e:
             logger.error(f"Failed to search jobs from Adzuna: {str(e)}")
             return []
 
-    async def get_job_details(self, job_id: str) -> Optional[JobPosting]:
+    def get_job_details(self, job_id: str) -> Optional[JobPosting]:
         """
         Get detailed job information by job ID.
 
@@ -64,12 +64,12 @@ class JobFetcher:
         """
         try:
             logger.info(f"Fetching Adzuna job details for ID: {job_id}")
-            return await self.adapter.get_job_details(job_id)
+            return self.adapter.get_job_details(job_id)
         except Exception as e:
             logger.error(f"Failed to fetch job details from Adzuna: {str(e)}")
             return None
 
-    async def get_company_jobs(self, company_name: str, limit: int = 10) -> List[JobPosting]:
+    def get_company_jobs(self, company_name: str, limit: int = 10) -> List[JobPosting]:
         """
         Get job postings from a specific company.
 
@@ -82,13 +82,13 @@ class JobFetcher:
         """
         try:
             logger.info(f"Fetching Adzuna jobs for company: {company_name}")
-            jobs = await self.adapter.get_company_jobs(company_name, limit)
+            jobs = self.adapter.get_company_jobs(company_name, limit)
             return self._deduplicate_jobs(jobs)[:limit]
         except Exception as e:
             logger.error(f"Failed to get company jobs from Adzuna: {str(e)}")
             return []
 
-    async def calculate_job_match_score(
+    def calculate_job_match_score(
         self, user_skills: List[str], job_requirements: List[str]
     ) -> JobMatchScore:
         """
@@ -153,10 +153,7 @@ class JobFetcher:
 
 
 if __name__ == "__main__":
-    import asyncio
-    async def main():
-        job_fetcher = JobFetcher()
-        results = await job_fetcher.search_jobs("Software Engineer Intern", limit=20)
-        for job in results:
-            print(f"{job.title} - {job.company} ({job.location})")
-    asyncio.run(main())
+    job_fetcher = JobFetcher()
+    results = job_fetcher.search_jobs("Software Engineer Intern", limit=20)
+    for job in results[:1]:
+        print(job)

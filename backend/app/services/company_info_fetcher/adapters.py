@@ -35,14 +35,14 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    async def get_company_info(self, company_id: str) -> CompanyInfo:
+    def get_company_info(self, company_id: str) -> CompanyInfo:
         """Get company information from Crunchbase."""
         if not self.is_available:
             raise Exception("Crunchbase API key not configured")
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
+            with httpx.Client() as client:
+                response = client.get(
                     f"{self.base_url}/entities/organizations/{company_id}",
                     headers=self.headers,
                     timeout=10.0,
@@ -59,7 +59,7 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
             logger.error(f"Failed to get company info from Crunchbase: {str(e)}")
             raise
 
-    async def search_companies(
+    def search_companies(
         self,
         query: str,
         limit: int = 10,
@@ -91,8 +91,8 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
             if industry:
                 params["categories"] = industry
 
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
+            with httpx.Client() as client:
+                response = client.get(
                     f"{self.base_url}/searches/organizations",
                     headers=self.headers,
                     params=params,
@@ -110,14 +110,14 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
             logger.error(f"Failed to search companies on Crunchbase: {str(e)}")
             raise
 
-    async def get_company_funding(self, company_id: str) -> List[FundingRound]:
+    def get_company_funding(self, company_id: str) -> List[FundingRound]:
         """Get company funding from Crunchbase."""
         if not self.is_available:
             raise Exception("Crunchbase API key not configured")
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
+            with httpx.Client() as client:
+                response = client.get(
                     f"{self.base_url}/entities/organizations/{company_id}/cards/funding_rounds",
                     headers=self.headers,
                     timeout=10.0,
