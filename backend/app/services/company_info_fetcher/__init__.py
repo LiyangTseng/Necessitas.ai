@@ -8,7 +8,6 @@ Uses adapter pattern to support different data providers.
 from .service import CompanyInfoFetcher
 from .adapters import (
     CrunchbaseCompanyAdapter,
-    LinkedInCompanyAdapter,
     MockCompanyAdapter,
 )
 from models import CompanyInfo, FundingRound
@@ -16,7 +15,6 @@ from models import CompanyInfo, FundingRound
 __all__ = [
     "CompanyInfoFetcher",
     "CrunchbaseCompanyAdapter",
-    "LinkedInCompanyAdapter",
     "MockCompanyAdapter",
     "CompanyInfo",
     "FundingRound",

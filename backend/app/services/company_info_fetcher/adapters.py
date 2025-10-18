@@ -7,7 +7,8 @@ Concrete implementations of company data adapters for different sources.
 import httpx
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from loguru import logger
+import logging
+logger = logging.getLogger(__name__)
 
 from .base_adapter import CompanyDataAdapter
 from models import CompanyInfo, FundingRound
@@ -240,92 +241,6 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
     def _parse_investors(self, investors: List[Dict[str, Any]]) -> List[str]:
         """Parse investor information."""
         return [inv.get("value", "") for inv in investors if inv.get("value")]
-
-
-class LinkedInCompanyAdapter(CompanyDataAdapter):
-    """LinkedIn company data adapter."""
-
-    def __init__(self, api_key: str = None):
-        """Initialize LinkedIn adapter."""
-        self.api_key = api_key or settings.linkedin_api_key
-        self.base_url = "https://api.linkedin.com/v2"
-        self.headers = (
-            {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
-            if self.api_key
-            else {}
-        )
-
-    @property
-    def source_name(self) -> str:
-        return "linkedin"
-
-    @property
-    def is_available(self) -> bool:
-        return bool(self.api_key)
-
-    async def get_company_info(self, company_id: str) -> CompanyInfo:
-        """Get company information from LinkedIn."""
-        if not self.is_available:
-            raise Exception("LinkedIn API key not configured")
-
-        # Implementation would call LinkedIn API
-        # For now, return mock data
-        return CompanyInfo(
-            company_id=company_id,
-            name="LinkedIn Company",
-            description="Professional networking company",
-            website="https://linkedin.com",
-            founded_year="2003",
-            employee_count="10000+",
-            location="Sunnyvale, CA",
-            industry="Technology",
-            categories=["Social Media", "Professional Services"],
-        )
-
-    async def search_companies(
-        self,
-        query: str,
-        limit: int = 10,
-        location: Optional[str] = None,
-        industry: Optional[str] = None,
-    ) -> List[CompanyInfo]:
-        """Search companies on LinkedIn."""
-        if not self.is_available:
-            raise Exception("LinkedIn API key not configured")
-
-        # Implementation would call LinkedIn search API
-        # For now, return mock data
-        return [
-            CompanyInfo(
-                company_id=f"linkedin_{i}",
-                name=f"LinkedIn Company {i}",
-                description=f"Professional company {i}",
-                website=f"https://company{i}.com",
-                location=location or "Remote",
-                industry=industry or "Technology",
-            )
-            for i in range(1, limit + 1)
-        ]
-
-    async def get_company_funding(self, company_id: str) -> List[FundingRound]:
-        """Get company funding from LinkedIn."""
-        if not self.is_available:
-            raise Exception("LinkedIn API key not configured")
-
-        # Implementation would call LinkedIn funding API
-        # For now, return mock data
-        return [
-            FundingRound(
-                round_name="IPO",
-                announced_date="2011-05-19",
-                money_raised=352000000,
-                investors=["Public Market"],
-                round_type="IPO",
-            )
-        ]
 
 
 class MockCompanyAdapter(CompanyDataAdapter):

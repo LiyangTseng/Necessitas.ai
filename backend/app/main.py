@@ -6,14 +6,12 @@ Main entry point for the necessitas.ai API server.
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import uvicorn
 from rich.console import Console
 
-from app.core.config import settings
-from app.core.database import init_db
-from app.routers import resume, jobs, insights, agent
+from core.config import settings
+from routers import resume, jobs, insights, agent, company
 
 console = Console()
 
@@ -23,8 +21,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
     console.print("🚀 Starting necessitas.ai backend...", style="bold green")
-    await init_db()
-    console.print("✅ Database initialized", style="bold green")
+    console.print("✅ API server initialized", style="bold green")
 
     yield
 
@@ -53,10 +50,8 @@ app.add_middleware(
 app.include_router(resume.router, prefix="/api/resume", tags=["resume"])
 app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(insights.router, prefix="/api/insights", tags=["insights"])
+app.include_router(company.router, prefix="/api/company", tags=["company"])
 app.include_router(agent.router, prefix="/api/agent", tags=["agent"])
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
@@ -78,5 +73,5 @@ async def health_check():
 
 if __name__ == "__main__":
     uvicorn.run(
-        "app.main:app", host="0.0.0.0", port=8000, reload=True, log_level="info"
+        "main:app", host="0.0.0.0", port=8000, reload=True, log_level="info"
     )

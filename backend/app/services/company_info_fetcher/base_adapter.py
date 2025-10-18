@@ -13,12 +13,12 @@ class CompanyDataAdapter(ABC):
     """Abstract adapter for company data sources."""
 
     @abstractmethod
-    async def get_company_info(self, company_id: str) -> CompanyInfo:
+    def get_company_info(self, company_id: str) -> CompanyInfo:
         """Get company information."""
         pass
 
     @abstractmethod
-    async def search_companies(
+    def search_companies(
         self,
         query: str,
         limit: int = 10,
@@ -29,7 +29,7 @@ class CompanyDataAdapter(ABC):
         pass
 
     @abstractmethod
-    async def get_company_funding(self, company_id: str) -> List[FundingRound]:
+    def get_company_funding(self, company_id: str) -> List[FundingRound]:
         """Get company funding information."""
         pass
 
