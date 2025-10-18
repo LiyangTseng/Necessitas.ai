@@ -1,4 +1,4 @@
-rom strands import tool
+from strands import tool
 from services.job_matching_engine import JobMatchingEngine
 from services.resume_parser import ResumeParser
 from services.job_fetcher.service import JobFetcher

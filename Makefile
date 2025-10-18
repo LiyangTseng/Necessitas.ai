@@ -1,16 +1,20 @@
-.PHONY: deploy configure launch status
+AGENT_PATH = backend/app/agents/bedrock_agent
 
-# deploy 會依次跑 configure -> launch -> status
+.PHONY: configure launch status agentdeploy
+
 agentdeploy: configure launch status
 
-# 配置 AgentCore
 configure:
-	agentcore configure -e backend/app/agents/bedrock_agent/bedrock_agent.py
+	agentcore configure \
+		--entrypoint $(AGENT_PATH)/bedrock_agent.py \
+		--name main_agent \
+		--requirements-file $(AGENT_PATH)/requirements.txt \
+		# --execution-role auto \
+		# --ecr auto \
+		# --non-interactive
 
-# 啟動 AgentCore
 launch:
 	agentcore launch --auto-update-on-conflict
 
-# 查看 AgentCore 狀態
 status:
 	agentcore status
