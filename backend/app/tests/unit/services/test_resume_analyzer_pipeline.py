@@ -88,7 +88,7 @@ async def main():
     2. Send parsed output to JobMatchingEngine / ResumeAnalyzer
     3. Print JSON result
     """
-    sample_resume = "app/tests/samples/resume.pdf"
+    sample_resume = os.path.join(os.path.dirname(__file__), "../../samples/resume.pdf")
     if not os.path.exists(sample_resume):
         logger.error(f"Test resume file not found: {sample_resume}")
         return
@@ -103,9 +103,9 @@ async def main():
     logger.info("Stage 2: Convert to standardized UserProfile")
     analyzed_profile = resume_to_user_profile(resume_data)
     logger.success("UserProfile Ready")
-    
+
     # Step 3: Job Matching
-    
+
     # this is just for testing
     fake_job = JobPosting(
         job_id="fake-123",

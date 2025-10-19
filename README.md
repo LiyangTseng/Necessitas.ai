@@ -80,7 +80,7 @@ flowchart TD
 python -m venv env
 source env/bin/activate  # On Windows: env\Scripts\activate
 # Set up PYTHONPATH
-export PYTHONPATH=backend/app:$PYTHONPATH
+export PYTHONPATH=backend/app/:$PYTHONPATH
 
 # Start the FastAPI backend service
 python backend/app/main.py
