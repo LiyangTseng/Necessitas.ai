@@ -1,0 +1,92 @@
+# Resume Parser Development Makefile
+
+.PHONY: setup test parse debug clean help
+
+# Setup development environment
+setup:
+	@echo "🔧 Setting up resume parser development environment..."
+	python -m venv venv
+	. venv/bin/activate && pip install --upgrade pip
+	. venv/bin/activate && pip install boto3 spacy requests python-docx PyPDF2 loguru pydantic pydantic-settings
+	. venv/bin/activate && python -m spacy download en_core_web_sm
+	@echo "✅ Setup complete!"
+
+# Activate virtual environment
+activate:
+	@echo "🔌 Activating virtual environment..."
+	@echo "Run: source venv/bin/activate"
+
+# Test the parser with sample resume
+test:
+	@echo "🧪 Running resume parser tests..."
+	. venv/bin/activate && python test_resume_parser.py
+
+# Parse a single resume file
+parse:
+	@echo "📄 Parsing sample resume..."
+	. venv/bin/activate && python resume_parser_fixed.py test_resumes/sample_resume_1.txt
+
+# Parse with verbose output
+parse-verbose:
+	@echo "📄 Parsing sample resume (verbose)..."
+	. venv/bin/activate && python resume_parser_fixed.py test_resumes/sample_resume_1.txt --verbose
+
+# Debug parsing issues
+debug:
+	@echo "🐛 Debugging resume parsing..."
+	. venv/bin/activate && python debug_sections.py
+
+# Debug specific section
+debug-section:
+	@echo "🐛 Debugging experience section..."
+	. venv/bin/activate && python resume_parser_cli.py debug test_resumes/sample_resume_1.txt --section experience
+
+# Compare different parsers
+compare:
+	@echo "🔄 Comparing parsers..."
+	. venv/bin/activate && python resume_parser_cli.py compare test_resumes/sample_resume_1.txt
+
+# Batch process all sample resumes
+batch:
+	@echo "📁 Batch processing sample resumes..."
+	. venv/bin/activate && python resume_parser_cli.py batch test_resumes
+
+# Create test report
+report:
+	@echo "📊 Creating test report..."
+	. venv/bin/activate && python resume_parser_cli.py report test_resumes --output test_report.json
+
+# Parse all sample resumes individually
+parse-all:
+	@echo "📄 Parsing all sample resumes..."
+	. venv/bin/activate && python resume_parser_fixed.py test_resumes/sample_resume_1.txt
+	. venv/bin/activate && python resume_parser_fixed.py test_resumes/sample_resume_2.txt
+	. venv/bin/activate && python resume_parser_fixed.py test_resumes/sample_resume_3.txt
+
+# Clean up generated files
+clean:
+	@echo "🧹 Cleaning up generated files..."
+	rm -f test_report.json
+	rm -f *.json
+	@echo "✅ Cleanup complete!"
+
+# Show help
+help:
+	@echo "Resume Parser Development Commands:"
+	@echo ""
+	@echo "  setup          - Set up development environment"
+	@echo "  activate       - Show activation command"
+	@echo "  test           - Run comprehensive tests"
+	@echo "  parse          - Parse sample resume"
+	@echo "  parse-verbose  - Parse with verbose output"
+	@echo "  debug          - Debug parsing issues"
+	@echo "  debug-section  - Debug specific section"
+	@echo "  compare        - Compare different parsers"
+	@echo "  batch          - Batch process all resumes"
+	@echo "  report         - Create test report"
+	@echo "  parse-all      - Parse all sample resumes"
+	@echo "  clean          - Clean up generated files"
+	@echo "  help           - Show this help"
+	@echo ""
+	@echo "Usage: make <command>"
+	@echo "Example: make test"

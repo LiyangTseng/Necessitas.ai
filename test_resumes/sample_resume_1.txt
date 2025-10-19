@@ -1,0 +1,74 @@
+John Doe
+Senior Software Engineer
+john.doe@email.com
++1-555-123-4567
+San Francisco, CA
+https://linkedin.com/in/johndoe
+https://github.com/johndoe
+
+SUMMARY
+Experienced software engineer with 5+ years in Python and React development.
+Passionate about building scalable web applications and leading technical teams.
+Strong background in full-stack development and cloud architecture.
+
+EXPERIENCE
+Senior Software Engineer - TechCorp
+San Francisco, CA
+Jan 2021 - Present
+• Led development of microservices architecture serving 1M+ users
+• Mentored 3 junior developers and conducted code reviews
+• Technologies: Python, React, AWS, Docker, Kubernetes
+• Improved system performance by 40% through optimization
+
+Software Engineer - StartupXYZ
+San Francisco, CA
+Jun 2019 - Dec 2020
+• Developed full-stack web applications using modern frameworks
+• Collaborated with product team to define technical requirements
+• Technologies: Python, JavaScript, PostgreSQL, Redis
+• Built REST APIs handling 100K+ requests daily
+
+Junior Developer - WebSolutions Inc
+San Francisco, CA
+Jan 2018 - May 2019
+• Created responsive web interfaces using React and CSS
+• Participated in agile development process
+• Technologies: HTML, CSS, JavaScript, Node.js
+
+EDUCATION
+Bachelor of Computer Science
+University of Technology
+San Francisco, CA
+2014 - 2018
+GPA: 3.8
+Dean's List: 2016-2018
+
+SKILLS
+Programming Languages: Python, JavaScript, TypeScript, Java, SQL
+Frameworks: React, Node.js, Express, Django, Flask
+Cloud & DevOps: AWS, Docker, Kubernetes, Jenkins, Terraform
+Databases: PostgreSQL, MongoDB, Redis, Elasticsearch
+Tools: Git, Linux, Bash, REST API, GraphQL
+
+CERTIFICATIONS
+AWS Solutions Architect - Amazon Web Services (2021)
+Certified Kubernetes Administrator - CNCF (2022)
+Google Cloud Professional Developer - Google (2020)
+
+PROJECTS
+ML Recommendation System
+Built a machine learning recommendation system using Python and TensorFlow
+Improved user engagement by 25% through personalized content
+https://github.com/johndoe/ml-recommendation
+Technologies: Python, TensorFlow, Scikit-learn, PostgreSQL
+
+E-commerce Platform
+Developed a full-stack e-commerce platform with payment integration
+Handled 10K+ concurrent users with 99.9% uptime
+https://github.com/johndoe/ecommerce-platform
+Technologies: React, Node.js, Stripe API, MongoDB
+
+LANGUAGES
+English (Native)
+Spanish (Conversational)
+French (Basic)

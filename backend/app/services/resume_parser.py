@@ -106,16 +106,37 @@ class ResumeParser:
         )
 
         # Load spaCy model
-        # try:
-        #     self.nlp = spacy.load("en_core_web_sm")
-        # except OSError:
-        #     logger.warning("spaCy model not found, using basic parsing")
-        #     self.nlp = None
+        # try to load spaCy, but keep attributes defined even if unavailable
+        try:
+            import spacy
+
+            try:
+                self.nlp = spacy.load("en_core_web_sm")
+            except Exception:
+                logger.warning("spaCy model 'en_core_web_sm' not found, spaCy features disabled")
+                self.nlp = None
+        except Exception:
+            logger.info("spaCy not installed, proceeding with fallback parsing")
+            self.nlp = None
 
         # Initialize matcher for skill extraction
-        # if self.nlp:
-        #     self.matcher = Matcher(self.nlp.vocab)
-        #     self._setup_skill_patterns()
+
+        # Common skills database (load before creating matchers)
+        self.skills_db = self._load_skills_database()
+
+        # Ensure matcher/phrase_matcher attribute exists even when spaCy not available
+        try:
+            if self.nlp:
+                # Prefer PhraseMatcher for phrase-based skill matching
+                from spacy.matcher import PhraseMatcher
+
+                self.phrase_matcher = PhraseMatcher(self.nlp.vocab, attr="LOWER")
+                self._setup_skill_patterns()
+            else:
+                self.phrase_matcher = None
+        except Exception:
+            logger.warning("Failed to initialize spaCy PhraseMatcher; continuing without it")
+            self.phrase_matcher = None
 
         # Common skills database
         self.skills_db = self._load_skills_database()
@@ -132,6 +153,23 @@ class ResumeParser:
     def _setup_skill_patterns(self):
         """Setup spaCy patterns for skill extraction."""
         if not self.nlp:
+            return
+
+        # Build phrase patterns from skills_db for PhraseMatcher
+        try:
+            # Use a subset to avoid extremely large matcher lists if needed
+            patterns = []
+            for skill in self.skills_db:
+                if not skill:
+                    continue
+                # create a Doc for the phrase matcher (case-insensitive via attr="LOWER")
+                patterns.append(self.nlp.make_doc(skill))
+
+            if patterns:
+                # Add under the label 'SKILLS'
+                self.phrase_matcher.add("SKILLS", patterns)
+        except Exception:
+            logger.warning("Error while setting up PhraseMatcher patterns")
             return
 
         # Programming languages
@@ -186,12 +224,24 @@ class ResumeParser:
             "Elasticsearch",
         ]
 
-        # Create patterns
-        patterns = []
-        for skill in prog_langs + frameworks + tools:
-            patterns.append([{"LOWER": skill.lower()}])
+        # Backwards-compatible: also add short token patterns to PhraseMatcher
+        try:
+            short_patterns = []
+            for skill in prog_langs + frameworks + tools:
+                if not skill:
+                    continue
+                short_patterns.append(self.nlp.make_doc(skill))
 
-        self.matcher.add("SKILLS", patterns)
+            if short_patterns:
+                # add or extend existing SKILLS entry
+                # PhraseMatcher will raise if label exists; safe-add by removing then re-adding
+                try:
+                    self.phrase_matcher.remove("SKILLS")
+                except Exception:
+                    pass
+                self.phrase_matcher.add("SKILLS", short_patterns)
+        except Exception:
+            logger.debug("Failed to add short skill patterns to PhraseMatcher")
 
     def _load_skills_database(self) -> List[str]:
         """Load comprehensive skills database."""
@@ -413,14 +463,64 @@ class ResumeParser:
         """Fallback text extraction method."""
         try:
             if file_path.lower().endswith(".pdf"):
-                import PyPDF2
+                # Prefer pdfplumber for more accurate PDF text extraction/layout
+                try:
+                    import pdfplumber
 
-                with open(file_path, "rb") as file:
-                    reader = PyPDF2.PdfReader(file)
                     text = ""
-                    for page in reader.pages:
-                        text += page.extract_text()
+                    with pdfplumber.open(file_path) as pdf:
+                        for page in pdf.pages:
+                            # Prefer extracting words and rebuild lines using coordinates to preserve spacing
+                            try:
+                                words = page.extract_words()
+                                if words:
+                                    # Sort words by 'top' then 'x0'
+                                    words_sorted = sorted(words, key=lambda w: (float(w.get("top", 0)), float(w.get("x0", 0))))
+                                    lines: List[List[dict]] = []
+                                    current_line: List[dict] = []
+                                    last_top = None
+                                    for w in words_sorted:
+                                        top = float(w.get("top", 0))
+                                        # start new line when vertical gap is significant (>3 px)
+                                        if last_top is None or abs(top - last_top) > 3:
+                                            if current_line:
+                                                lines.append(current_line)
+                                            current_line = [w]
+                                            last_top = top
+                                        else:
+                                            current_line.append(w)
+                                            last_top = (last_top + top) / 2.0
+
+                                    if current_line:
+                                        lines.append(current_line)
+
+                                    page_lines: List[str] = []
+                                    for ln in lines:
+                                        # sort by x0 and join words with single space
+                                        ln_sorted = sorted(ln, key=lambda w: float(w.get("x0", 0)))
+                                        page_lines.append(" ".join(w.get("text", "") for w in ln_sorted))
+
+                                    page_text = "\n".join(page_lines)
+                                else:
+                                    page_text = page.extract_text() or ""
+                            except Exception:
+                                page_text = page.extract_text() or ""
+                            # preserve page break
+                            text += page_text + "\n\n"
                     return text
+                except Exception:
+                    # Fallback to PyPDF2 if pdfplumber not available or fails
+                    try:
+                        import PyPDF2
+
+                        with open(file_path, "rb") as file:
+                            reader = PyPDF2.PdfReader(file)
+                            text = ""
+                            for page in reader.pages:
+                                text += page.extract_text() or ""
+                            return text
+                    except Exception:
+                        logger.warning("pdfplumber and PyPDF2 failed to extract PDF text; continuing to other fallbacks")
             elif file_path.lower().endswith(".docx"):
                 from docx import Document
 
@@ -436,6 +536,124 @@ class ResumeParser:
             logger.error(f"Fallback text extraction failed: {str(e)}")
             return ""
 
+    def _clean_text(self, text: str) -> str:
+        """Lightweight cleaning of extracted text to remove OCR/artifact noise."""
+        if not text:
+            return ""
+
+        # Ensure common section headers are on their own lines (helps when PDFs lose newlines)
+        headers = [
+            "PROFESSIONAL EXPERIENCE",
+            "WORK EXPERIENCE",
+            "EXPERIENCE",
+            "EDUCATION",
+            "TECHNICAL SKILLS",
+            "SKILLS",
+            "PROJECTS",
+            "SELECTIVE PROJECTS",
+            "PUBLICATIONS",
+            "PUBLICATION",
+            "CERTIFICATIONS",
+            "LANGUAGES",
+            "SUMMARY",
+        ]
+        def _ensure_header_newlines(s: str) -> str:
+            for h in headers:
+                # insert newline before and after the header if it's run together
+                s = re.sub(rf"(?i)\b{re.escape(h)}\b", f"\n{h}\n", s)
+            return s
+
+        text = _ensure_header_newlines(text)
+
+        # Remove common '(cid:123)' artifacts and weird unicode control characters
+        text = re.sub(r"\(cid:\d+\)", " ", text)
+        # Replace multiple non-word sequences (except newlines) with a single space
+        text = re.sub(r"[\u2000-\u206F\u2E00-\u2E7F]+", " ", text)
+        # Fix missing spaces between letters/digits (e.g., 'Jun2027' -> 'Jun 2027') for common month patterns
+        text = re.sub(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)(?=\d{4})", r"\1 ", text)
+        # Insert spaces between lowercase->Uppercase (e.g., 'SoftwareEngineering' -> 'Software Engineering')
+        text = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", text)
+        # Insert spaces between letters and digits (e.g., 'a5x' -> 'a 5x') and digits->letters
+        text = re.sub(r"(?<=[A-Za-z])(?=\d)", " ", text)
+        text = re.sub(r"(?<=\d)(?=[A-Za-z])", " ", text)
+        # Normalize multiple spaces and preserve paragraphs
+        lines = [re.sub(r"[ \t]{2,}", " ", l).strip() for l in text.splitlines()]
+        # Remove empty lines at the edges and collapse consecutive blank lines to one
+        cleaned_lines = []
+        blank = False
+        for l in lines:
+            if not l:
+                if not blank:
+                    cleaned_lines.append("")
+                blank = True
+            else:
+                cleaned_lines.append(l)
+                blank = False
+
+        cleaned = "\n".join(cleaned_lines).strip() + "\n"
+        return cleaned
+
+    def _split_into_headed_sections(self, text: str) -> List[Tuple[str, str]]:
+        """Split text into (heading, body) pairs using all-caps headings or common section keywords.
+
+        Returns a list of tuples where heading may be empty for leading content.
+        """
+        if not text:
+            return []
+
+        # Heuristic: headings are lines in ALL CAPS or lines that match common section names
+        section_headers = [
+            "EXPERIENCE",
+            "PROFESSIONAL EXPERIENCE",
+            "WORK EXPERIENCE",
+            "EDUCATION",
+            "TECHNICAL SKILLS",
+            "SKILLS",
+            "PROJECTS",
+            "PUBLICATIONS",
+            "CERTIFICATIONS",
+            "LANGUAGES",
+            "SUMMARY",
+        ]
+
+        lines = text.splitlines()
+        sections: List[Tuple[str, List[str]]] = []
+        current_header = ""
+        current_body: List[str] = []
+
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                # preserve paragraph breaks
+                current_body.append("")
+                continue
+
+            is_header = False
+            # all-caps heuristic (and reasonably short)
+            if stripped.isupper() and len(stripped) < 60:
+                is_header = True
+
+            # explicit known headers
+            if any(h in stripped.upper() for h in section_headers):
+                is_header = True
+
+            if is_header:
+                # push previous
+                if current_header or current_body:
+                    sections.append((current_header, current_body))
+                # set new header and reset body
+                current_header = stripped.upper()
+                current_body = []
+            else:
+                current_body.append(line)
+
+        # append last
+        if current_header or current_body:
+            sections.append((current_header, current_body))
+
+        # Convert bodies back to strings
+        return [(h, "\n".join(b).strip()) for h, b in sections]
+
     def _parse_resume_data(self, raw_text: str) -> ResumeData:
         """Parse resume data from raw text."""
         try:
@@ -450,14 +668,17 @@ class ResumeParser:
                 projects=[],
             )
 
-            # Extract personal information
-            resume_data.personal_info = self._extract_personal_info(raw_text)
+            # Clean text first to reduce OCR artifacts
+            cleaned = self._clean_text(raw_text)
+
+            # Extract personal information (use cleaned text)
+            resume_data.personal_info = self._extract_personal_info(cleaned)
 
             # Extract skills
-            resume_data.skills = self._extract_skills(raw_text)
+            resume_data.skills = self._extract_skills(cleaned)
 
-            # Extract experience
-            resume_data.experience = self._extract_experience(raw_text)
+            # Extract experience using headed sections + fallback
+            resume_data.experience = self._extract_experience(cleaned)
 
             # Extract education
             resume_data.education = self._extract_education(raw_text)
@@ -510,16 +731,36 @@ class ResumeParser:
         if github_match:
             personal_info.github_url = github_match.group()
 
-        # Extract name (first line or after "Name:")
-        name_pattern = r"(?:name|full name):\s*([^\n]+)"
-        name_match = re.search(name_pattern, text, re.IGNORECASE)
-        if name_match:
-            personal_info.name = name_match.group(1).strip()
-        else:
-            # Try first line as name
-            first_line = text.split("\n")[0].strip()
-            if len(first_line) < 50 and not "@" in first_line:  # Not email
-                personal_info.name = first_line
+        # Use spaCy NER for name extraction if available
+        if self.nlp:
+            try:
+                doc = self.nlp(text)
+                # Look for PERSON entity
+                for ent in doc.ents:
+                    if ent.label_ == "PERSON":
+                        # Take first PERSON entity as name if it looks like a name line
+                        candidate = ent.text.strip()
+                        if candidate and len(candidate) < 100:
+                            personal_info.name = candidate
+                            break
+            except Exception:
+                logger.debug("spaCy NER failed for name extraction, falling back to regex")
+
+        # If spaCy didn't yield a name, use previous heuristics
+        if not personal_info.name:
+            name_pattern = r"(?:name|full name):\s*([^\n]+)"
+            name_match = re.search(name_pattern, text, re.IGNORECASE)
+            if name_match:
+                personal_info.name = name_match.group(1).strip()
+            else:
+                # Try first non-empty line as name
+                for line in text.split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    if len(line) < 100 and "@" not in line and not line.lower().startswith("summary"):
+                        personal_info.name = line
+                        break
 
         # Extract location
         location_pattern = r"(?:location|address|based in):\s*([^\n]+)"
@@ -534,15 +775,18 @@ class ResumeParser:
         skills = []
         text_lower = text.lower()
 
-        # Use spaCy if available
-        if self.nlp:
-            doc = self.nlp(text)
-            matches = self.matcher(doc)
-
-            for match_id, start, end in matches:
-                skill = doc[start:end].text
-                if skill not in skills:
-                    skills.append(skill)
+        # Use spaCy PhraseMatcher if available
+        if self.nlp and self.phrase_matcher:
+            try:
+                doc = self.nlp(text)
+                matches = self.phrase_matcher(doc)
+                for match_id, start, end in matches:
+                    span = doc[start:end]
+                    skill = span.text.strip()
+                    if skill and skill not in skills:
+                        skills.append(skill)
+            except Exception:
+                logger.debug("PhraseMatcher failed; falling back to DB matching")
 
         # Fallback to regex-based extraction
         for skill in self.skills_db:
@@ -573,16 +817,237 @@ class ResumeParser:
         """Extract work experience from text."""
         experiences = []
 
-        # Split text into sections
-        sections = re.split(r"\n\s*\n", text)
+        # First try stronger headed-section splitting
+        sections = self._split_into_headed_sections(text)
 
-        for section in sections:
-            if self._is_experience_section(section):
-                experience = self._parse_experience_section(section)
-                if experience:
-                    experiences.append(experience)
+        found = False
+        for heading, body in sections:
+            if heading and self._is_experience_section(heading + "\n" + body):
+                # body may contain multiple entries separated by double newlines
+                entries = re.split(r"\n\s*\n", body)
+                # If there's no blank-line separation, try splitting by date markers
+                if len(entries) <= 1:
+                    entries = self._split_entries_by_dates(body)
+                for entry in entries:
+                    entry = entry.strip()
+                    if not entry:
+                        continue
+                    exp = self._parse_experience_section(entry)
+                    if exp:
+                        experiences.append(exp)
+                        found = True
+
+        # Fallback: scan entire text for experience-like sections
+        if not found:
+            sections = re.split(r"\n\s*\n", text)
+            for section in sections:
+                if self._is_experience_section(section):
+                    exp = self._parse_experience_section(section)
+                    if exp:
+                        experiences.append(exp)
 
         return experiences
+
+    def _split_entries_by_dates(self, text: str) -> List[str]:
+        """Attempt to split a block of text into multiple experience entries using date markers.
+
+        This helps when the PDF lost paragraph breaks and multiple experiences are concatenated.
+        """
+        if not text:
+            return []
+
+        # Use line-based scanning: start a new entry when a line contains a month/year or year range
+        month_regex = r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*\d{4}"
+        year_regex = r"\d{4}"
+        date_line_regex = re.compile(rf"({month_regex}|{year_regex}).*(?:[-–—].*({month_regex}|{year_regex}|present|current))?", re.IGNORECASE)
+
+        lines = text.splitlines()
+        entries: List[List[str]] = []
+        current: List[str] = []
+
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if not stripped:
+                # preserve as potential separator
+                if current and current[-1] != "":
+                    current.append("")
+                continue
+
+            is_date_line = bool(date_line_regex.search(stripped))
+
+            # Heuristic: if the line contains a date range or a month-year, consider it a start of a new entry
+            if is_date_line and current:
+                # Start new entry if current already has content
+                entries.append(current)
+                current = [line]
+            else:
+                current.append(line)
+
+        if current:
+            entries.append(current)
+
+        # Join back into text blocks
+        joined = ["\n".join(e).strip() for e in entries if "\n".join(e).strip()]
+
+        # If we detected only one block, just return the original text as single entry
+        if len(joined) <= 1:
+            return [text.strip()]
+
+        return joined
+
+    def _parse_experience_section(self, section: str) -> Optional[Experience]:
+        """Parse individual experience section or mini-entry into an Experience object.
+
+        Improved heuristics: use spaCy ORG and DATE entities to detect company and dates,
+        and look for common role keywords to identify title.
+        """
+        try:
+            experience = Experience()
+
+            # Normalize whitespace
+            sec = section.strip()
+            # Normalize common dash characters and remove odd spacing around en/em dashes
+            sec = re.sub(r"[\u2012\u2013\u2014\u2015]", "-", sec)
+            sec = re.sub(r"\s*[-–—]\s*", " - ", sec)
+            lines = [l.strip() for l in sec.splitlines() if l.strip()]
+
+            # If spaCy is available, use NER to find ORG and DATE entities
+            org_candidate = None
+            date_candidates: List[str] = []
+            if self.nlp:
+                try:
+                    doc = self.nlp(sec)
+                    for ent in doc.ents:
+                        if ent.label_ == "ORG" and not org_candidate:
+                            org_candidate = ent.text.strip()
+                        if ent.label_ == "DATE":
+                            date_candidates.append(ent.text.strip())
+                except Exception:
+                    logger.debug("spaCy NER failed during experience parsing")
+
+            # If first line contains a company-like pattern (comma separated) try to split
+            if lines:
+                first = lines[0]
+                # common: 'Company Aug2024–Dec2024' or 'Title, Company — Date'
+                # Try to detect 'Title at Company' or 'Company Aug 2024'
+                if " at " in first:
+                    parts = first.split(" at ", 1)
+                    experience.title = parts[0].strip()
+                    experience.company = parts[1].strip()
+                elif "," in first and any(kw in first.lower() for kw in ["inc", "llc", "company", "university", "center", "lab", "research", "corporation"]):
+                    parts = first.split(",", 1)
+                    experience.company = parts[0].strip()
+                    experience.title = parts[1].strip()
+                else:
+                    # fallback: take a short first line as title candidate
+                    if len(first) < 100 and len(lines) > 1:
+                        # prefer to treat first as title if it contains role keywords
+                        role_kw = r"\b(intern|engineer|research|developer|manager|scientist|analyst|consultant|designer|teacher)\b"
+                        if re.search(role_kw, first, re.IGNORECASE):
+                            experience.title = first
+                        else:
+                            # if spaCy found an ORG and it appears in first line, set company
+                            if org_candidate and org_candidate in first:
+                                experience.company = org_candidate
+                            else:
+                                # If first line contains a company name followed by dates (e.g., 'National Center Aug 2024–Dec 2024'),
+                                # then shift: set company from first line and set title from second line if it looks like a role.
+                                # If first line contains a date range glued to it, extract the date part then set company to remaining
+                                date_range_inline = re.search(r"(?P<pre>.*?)(?P<dates>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}\s*[-–—]\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4})\b", first, re.IGNORECASE)
+                                if date_range_inline:
+                                    pre = date_range_inline.group("pre").strip()
+                                    datestr = date_range_inline.group("dates").strip()
+                                    # set company to text before the date
+                                    if pre:
+                                        experience.company = pre
+                                    # parse dates
+                                    try:
+                                        # normalize datestr then parse
+                                        dr = re.sub(r"\s+", " ", datestr)
+                                        # if it's a range separated by '-', split
+                                        if "-" in dr:
+                                            parts = [p.strip() for p in dr.split("-") if p.strip()]
+                                            if parts:
+                                                experience.start_date = self._parse_date(parts[0])
+                                            if len(parts) > 1:
+                                                if parts[1].lower() not in ["present", "current"]:
+                                                    experience.end_date = self._parse_date(parts[1])
+                                                else:
+                                                    experience.current = True
+                                        else:
+                                            experience.start_date = self._parse_date(dr)
+                                    except Exception:
+                                        pass
+                                    # set title from next line if it looks like a role
+                                    if len(lines) > 1:
+                                        second = lines[1]
+                                        if re.search(role_kw, second, re.IGNORECASE):
+                                            experience.title = second
+                                        else:
+                                            # fallback: leave title blank (will be set later)
+                                            pass
+                                else:
+                                    date_like = re.search(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}", first, re.IGNORECASE)
+                                    if date_like and len(lines) > 1:
+                                        # treat first as company and second as title when second matches role keywords
+                                        experience.company = first
+                                        second = lines[1]
+                                        if re.search(role_kw, second, re.IGNORECASE):
+                                            experience.title = second
+                                        else:
+                                            experience.title = first
+                                else:
+                                    experience.title = first
+
+            # If company not found yet, try to find ORG in other lines
+            if not experience.company and org_candidate:
+                experience.company = org_candidate
+
+            # Extract date ranges using flexible regex (handles 'Aug 2024', 'Aug2024', '2024', and ranges)
+            date_range_regex = re.compile(r"(?P<start>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}|\d{4})\s*[-–—]\s*(?P<end>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}|\d{4}|present|current)", re.IGNORECASE)
+            m = date_range_regex.search(sec)
+            if m:
+                start_s = m.group("start")
+                end_s = m.group("end")
+                experience.start_date = self._parse_date(start_s)
+                if end_s and end_s.lower() not in ["present", "current"]:
+                    experience.end_date = self._parse_date(end_s)
+                else:
+                    experience.current = True
+            else:
+                # Try to parse single year/month mentions as start date if present in top lines
+                for line in lines[:2]:
+                    ym = re.search(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*\d{4}|\d{4}", line)
+                    if ym:
+                        experience.start_date = self._parse_date(ym.group())
+                        break
+
+            # Build description: include lines that are not title/company/date
+            desc_lines = []
+            skip_patterns = [r"\b(Aug|Sep|Oct|Nov|Dec|Jan|Feb|Mar|Apr|May|Jun)\b", r"\d{4}"]
+            for line in lines:
+                # skip lines that match company/title exact
+                if line == experience.title or line == experience.company:
+                    continue
+                # skip if line is a short date-only line
+                if re.match(r"^\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\s*\d{4}\s*$", line, re.IGNORECASE):
+                    continue
+                desc_lines.append(line)
+
+            experience.description = "\n".join(desc_lines).strip()
+
+            # Extract skills from description
+            experience.skills_used = self._extract_skills(experience.description)
+
+            # Validate we have at least some content
+            if not experience.title and not experience.company and not experience.description:
+                return None
+
+            return experience
+
+        except Exception as e:
+            logger.error(f"Failed to parse experience section: {str(e)}")
+            return None
 
     def _is_experience_section(self, section: str) -> bool:
         """Check if section contains work experience."""
@@ -671,7 +1136,7 @@ class ResumeParser:
     def _parse_date(self, date_str: str) -> Optional[date]:
         """Parse date string to date object."""
         try:
-            # Common date formats
+            # Try strict formats first
             formats = [
                 "%B %Y",
                 "%b %Y",
@@ -685,9 +1150,22 @@ class ResumeParser:
 
             for fmt in formats:
                 try:
-                    return datetime.strptime(date_str, fmt).date()
-                except ValueError:
+                    return datetime.strptime(date_str.strip(), fmt).date()
+                except Exception:
                     continue
+
+            # Fallback: try dateutil if available which handles many informal formats
+            try:
+                from dateutil import parser as dateutil_parser
+
+                # dateutil may return a datetime; prefer year/month if present
+                dt = dateutil_parser.parse(date_str, default=datetime(1900, 1, 1))
+                return date(dt.year, dt.month, 1)
+            except Exception:
+                # Last resort: extract a 4-digit year
+                y = re.search(r"(19|20)\d{2}", date_str)
+                if y:
+                    return date(int(y.group()), 1, 1)
 
             return None
         except Exception:

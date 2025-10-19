@@ -1,0 +1,91 @@
+Michael Chen
+Full Stack Developer & DevOps Engineer
+michael.chen@devmail.com
++1 (555) 456-7890
+Seattle, WA
+https://linkedin.com/in/michaelchen
+https://github.com/michaelc
+https://michaelchen.dev
+
+ABOUT
+Full-stack developer with 6+ years of experience building scalable web applications.
+Expert in modern JavaScript frameworks, cloud infrastructure, and DevOps practices.
+Passionate about clean code, automation, and continuous improvement.
+
+PROFESSIONAL EXPERIENCE
+Lead Full Stack Developer - CloudTech Solutions
+Seattle, WA
+August 2021 - Present
+• Lead a team of 4 developers building microservices architecture
+• Designed and implemented CI/CD pipelines reducing deployment time by 60%
+• Technologies: React, Node.js, TypeScript, AWS, Docker, Kubernetes
+• Mentored junior developers and established coding standards
+
+Senior Full Stack Developer - E-commerce Plus
+Seattle, WA
+January 2020 - July 2021
+• Built responsive e-commerce platform handling $10M+ in transactions
+• Implemented real-time features using WebSockets and Redis
+• Technologies: Vue.js, Express.js, MongoDB, AWS, Stripe API
+• Improved page load times by 50% through optimization
+
+Full Stack Developer - WebDev Agency
+Seattle, WA
+June 2018 - December 2019
+• Developed custom web applications for various clients
+• Worked with design teams to create pixel-perfect UIs
+• Technologies: Angular, PHP, MySQL, Linux, Git
+• Delivered 15+ projects on time and within budget
+
+Junior Web Developer - StartupHub
+Seattle, WA
+January 2017 - May 2018
+• Created landing pages and marketing websites
+• Learned modern web development practices
+• Technologies: HTML, CSS, JavaScript, jQuery, WordPress
+• Contributed to open-source projects
+
+EDUCATION
+Bachelor of Computer Science
+University of Washington
+Seattle, WA
+2013 - 2017
+GPA: 3.6
+Relevant Coursework: Data Structures, Algorithms, Database Systems
+
+TECHNICAL SKILLS
+Frontend: React, Vue.js, Angular, TypeScript, JavaScript, HTML5, CSS3, Sass
+Backend: Node.js, Express.js, Python, PHP, REST APIs, GraphQL
+Databases: MongoDB, PostgreSQL, MySQL, Redis, Elasticsearch
+Cloud & DevOps: AWS, Docker, Kubernetes, Jenkins, Terraform, Ansible
+Tools: Git, Linux, Bash, Webpack, Babel, ESLint, Jest
+Mobile: React Native, Flutter (Basic)
+
+CERTIFICATIONS
+AWS Certified Solutions Architect (2022)
+Certified Kubernetes Administrator (2021)
+Google Cloud Professional Developer (2020)
+
+NOTABLE PROJECTS
+Microservices E-commerce Platform
+Architected and built a scalable e-commerce platform using microservices
+Handles 100K+ concurrent users with 99.99% uptime
+https://github.com/michaelc/ecommerce-microservices
+Technologies: React, Node.js, Docker, Kubernetes, AWS
+
+Real-time Chat Application
+Developed a real-time chat application with file sharing
+Supports 10K+ concurrent users with WebSocket connections
+https://github.com/michaelc/realtime-chat
+Technologies: Vue.js, Socket.io, Redis, MongoDB
+
+DevOps Automation Suite
+Created automated deployment and monitoring tools
+Reduced deployment time from 2 hours to 15 minutes
+https://github.com/michaelc/devops-automation
+Technologies: Python, Docker, Kubernetes, Prometheus, Grafana
+
+LANGUAGES
+English (Native)
+Chinese (Fluent)
+Korean (Conversational)

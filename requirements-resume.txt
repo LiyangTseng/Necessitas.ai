@@ -1,0 +1,26 @@
+# Resume Parser Dependencies
+# Core dependencies
+boto3>=1.40.0
+spacy>=3.8.0
+requests>=2.32.0
+python-docx>=1.2.0
+PyPDF2>=3.0.0
+loguru>=0.7.0
+pydantic>=2.12.0
+pydantic-settings>=2.11.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Optional dependencies for enhanced functionality
+# Uncomment as needed:
+# pillow>=10.0.0  # For image processing
+# opencv-python>=4.8.0  # For computer vision
+# pytesseract>=0.3.10  # For OCR
+# pdfplumber>=0.9.0  # Alternative PDF parser
+# python-magic>=0.4.27  # File type detection

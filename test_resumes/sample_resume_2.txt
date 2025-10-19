@@ -1,0 +1,82 @@
+Sarah Johnson
+Data Scientist & Machine Learning Engineer
+sarah.johnson@techmail.com
+(555) 987-6543
+New York, NY
+https://linkedin.com/in/sarahjohnson
+https://github.com/sarahj
+
+PROFESSIONAL SUMMARY
+Data scientist with 4+ years of experience in machine learning, statistical analysis, and big data processing.
+Expert in Python, R, and cloud platforms. Passionate about turning data into actionable insights.
+
+WORK EXPERIENCE
+Senior Data Scientist - DataCorp Analytics
+New York, NY
+March 2022 - Present
+• Developed ML models for customer churn prediction with 85% accuracy
+• Led a team of 2 junior data scientists
+• Technologies: Python, Scikit-learn, TensorFlow, AWS, Spark
+• Reduced customer acquisition cost by 30% through targeted campaigns
+
+Data Scientist - FinTech Solutions
+New York, NY
+June 2020 - February 2022
+• Built fraud detection models using ensemble methods
+• Processed and analyzed 10TB+ of financial transaction data
+• Technologies: Python, R, SQL, Apache Kafka, Docker
+• Improved fraud detection rate by 40% while reducing false positives
+
+Data Analyst - Retail Analytics Inc
+New York, NY
+January 2019 - May 2020
+• Created dashboards and reports for business stakeholders
+• Performed A/B testing and statistical analysis
+• Technologies: SQL, Tableau, Python, Excel
+• Identified $2M+ in cost savings opportunities
+
+EDUCATION
+Master of Science in Data Science
+Columbia University
+New York, NY
+2017 - 2019
+GPA: 3.9
+Thesis: "Deep Learning Approaches to Time Series Forecasting"
+
+Bachelor of Mathematics
+New York University
+New York, NY
+2013 - 2017
+GPA: 3.7
+Magna Cum Laude
+
+TECHNICAL SKILLS
+Programming: Python, R, SQL, Scala, Java
+ML/AI: TensorFlow, PyTorch, Scikit-learn, XGBoost, Keras
+Big Data: Apache Spark, Hadoop, Kafka, Airflow
+Cloud: AWS (S3, EC2, SageMaker), Google Cloud Platform
+Databases: PostgreSQL, MongoDB, Redis, Elasticsearch
+Visualization: Tableau, Matplotlib, Seaborn, Plotly
+Statistics: Hypothesis Testing, Regression, Classification, Clustering
+
+CERTIFICATIONS
+AWS Certified Machine Learning - Specialty (2022)
+Google Cloud Professional Data Engineer (2021)
+Certified Analytics Professional (CAP) (2020)
+
+PROJECTS
+Real-time Fraud Detection System
+Built a real-time fraud detection system using streaming data
+Deployed on AWS with Lambda and Kinesis
+https://github.com/sarahj/fraud-detection
+Technologies: Python, AWS, Kafka, TensorFlow
+
+Customer Segmentation Analysis
+Developed customer segmentation model using clustering algorithms
+Identified 5 distinct customer segments with different behaviors
+Technologies: Python, Scikit-learn, Pandas, Matplotlib
+
+LANGUAGES
+English (Native)
+Mandarin (Fluent)
+Japanese (Intermediate)
