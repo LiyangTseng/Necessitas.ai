@@ -55,7 +55,7 @@ class Education:
     """Education entry."""
 
     degree: str = ""
-    field_of_study: str = ""
+    major: str = ""
     school: str = ""
     location: str = ""
     start_date: Optional[date] = None
