@@ -97,7 +97,7 @@ cd frontend && npm run dev
 ```
 
 
-Type enter when being asked on deployment details. Theoretically we should be able to invoke agent response using commands such as `agentcore invoke '{"prompt": "Hello"}'`
+Type enter when being asked on deployment details. Theoretically we should be able to invoke agent response using commands such as `agentcore invoke '{"prompt": "Find me real 3 job openings for software engineer intern with apply urls"}'`
 
 ### **3. Test the System**
 ```bash
