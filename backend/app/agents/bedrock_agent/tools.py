@@ -108,71 +108,82 @@ def search_jobs(query: str, location: str = None, limit: int = 10) -> dict:
         return {"success": False, "jobs": [], "error": str(e)}
 
 
-@tool
-def get_company_info(company_name: str) -> dict:
-    """Get detailed company information."""
-    try:
-        # Call API endpoint
-        import asyncio
-        result = asyncio.run(_make_api_request(f"/company/{company_name}"))
+# TODO
+# @tool
+# def get_company_info(company_name: str) -> dict:
+#     """Get detailed company information."""
+#     try:
+#         # Call API endpoint
+#         import asyncio
+#         result = asyncio.run(_make_api_request(f"/company/{company_name}"))
 
-        if result.get("success"):
-            return result
-        else:
-            logger.error(f"Company info retrieval failed: {result.get('error', 'Unknown error')}")
-            return {"success": False, "company": None, "error": result.get("error")}
+#         if result.get("success"):
+#             return result
+#         else:
+#             logger.error(f"Company info retrieval failed: {result.get('error', 'Unknown error')}")
+#             return {"success": False, "company": None, "error": result.get("error")}
 
-    except Exception as e:
-        logger.error(f"Failed to get company info: {str(e)}")
-        return {"success": False, "company": None, "error": str(e)}
-
-
-@tool
-def analyze_skill_gap(user_profile_data: dict, target_role: str = None) -> dict:
-    """Analyze skill gaps for career development."""
-    try:
-        # Prepare request data
-        request_data = {
-            "user_profile": user_profile_data,
-            "target_role": target_role
-        }
-
-        # Call API endpoint
-        import asyncio
-        result = asyncio.run(_make_api_request("/insights/skill-gap", "POST", request_data))
-
-        if result.get("success"):
-            return result
-        else:
-            logger.error(f"Skill gap analysis failed: {result.get('error', 'Unknown error')}")
-            return {"success": False, "error": result.get("error")}
-
-    except Exception as e:
-        logger.error(f"Failed to analyze skill gap: {str(e)}")
-        return {"success": False, "error": str(e)}
+#     except Exception as e:
+#         logger.error(f"Failed to get company info: {str(e)}")
+#         return {"success": False, "company": None, "error": str(e)}
 
 
-@tool
-def generate_career_roadmap(user_profile_data: dict, target_role: str, timeline_months: int = 12) -> dict:
-    """Generate a career roadmap for reaching a target role."""
-    try:
-        # Prepare request data
-        request_data = {
-            "user_profile": user_profile_data,
-            "target_role": target_role,
-            "timeline_months": timeline_months
-        }
+# @tool
+# def analyze_skill_gap(user_profile_data: dict, target_role: str = None) -> dict:
+#     """Analyze skill gaps for career development."""
+#     try:
+#         # Prepare request data
+#         request_data = {
+#             "user_profile": user_profile_data,
+#             "target_role": target_role
+#         }
 
-        # Call API endpoint
-        import asyncio
-        result = asyncio.run(_make_api_request("/insights/career-roadmap", "POST", request_data))
+#         # Call API endpoint
+#         import asyncio
+#         result = asyncio.run(_make_api_request("/insights/skill-gap", "POST", request_data))
 
-        if result.get("success"):
-            return result
-        else:
-            logger.error(f"Career roadmap generation failed: {result.get('error', 'Unknown error')}")
-            return {"success": False, "error": result.get("error")}
+#         if result.get("success"):
+#             return result
+#         else:
+#             logger.error(f"Skill gap analysis failed: {result.get('error', 'Unknown error')}")
+#             return {"success": False, "error": result.get("error")}
 
-    except Exception as e:
-        logger.error(f"Failed to generate career roadmap: {str(e)}")
-        return {"success": False, "error": str(e)}
+#     except Exception as e:
+#         logger.error(f"Failed to analyze skill gap: {str(e)}")
+#         return {"success": False, "error": str(e)}
+
+
+# @tool
+# def generate_career_roadmap(user_profile_data: dict, target_role: str, timeline_months: int = 12) -> dict:
+#     """Generate a career roadmap for reaching a target role."""
+#     try:
+#         # Prepare request data
+#         request_data = {
+#             "user_profile": user_profile_data,
+#             "target_role": target_role,
+#             "timeline_months": timeline_months
+#         }
+
+#         # Call API endpoint
+#         import asyncio
+#         result = asyncio.run(_make_api_request("/insights/career-roadmap", "POST", request_data))
+
+#         if result.get("success"):
+#             return result
+#         else:
+#             logger.error(f"Career roadmap generation failed: {result.get('error', 'Unknown error')}")
+#             return {"success": False, "error": result.get("error")}
+
+#     except Exception as e:
+#         logger.error(f"Failed to generate career roadmap: {str(e)}")
+#         return {"success": False, "error": str(e)}
+
+if __name__ == "__main__":
+    # jobs = search_jobs("software engineer", "San Francisco", 10)
+    # print(jobs)
+
+    job_matches = find_job_matches(
+        {"skills": ["Python", "JavaScript", "React"], "experience": "1 year"},
+        {"location": "San Francisco", "job_type": "full-time"}
+    )
+    print(job_matches)

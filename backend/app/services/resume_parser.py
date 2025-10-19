@@ -10,7 +10,6 @@ import json
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, date
-from dataclasses import dataclass, field
 # import spacy
 # from spacy.matcher import Matcher
 import requests
@@ -19,78 +18,10 @@ from urllib.parse import urlparse
 from core.config import settings
 import logging
 
+# Import centralized models
+from models import PersonalInfo, Experience, Education, Certification, ResumeData
+
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class PersonalInfo:
-    """Personal information extracted from resume."""
-
-    name: str = ""
-    email: str = ""
-    phone: str = ""
-    location: str = ""
-    linkedin_url: str = ""
-    github_url: str = ""
-    website: str = ""
-
-
-@dataclass
-class Experience:
-    """Work experience entry."""
-
-    title: str = ""
-    company: str = ""
-    location: str = ""
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    current: bool = False
-    description: str = ""
-    skills_used: List[str] = field(default_factory=list)
-    achievements: List[str] = field(default_factory=list)
-
-
-@dataclass
-class Education:
-    """Education entry."""
-
-    degree: str = ""
-    major: str = ""
-    school: str = ""
-    location: str = ""
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    gpa: Optional[float] = None
-    honors: List[str] = field(default_factory=list)
-
-
-@dataclass
-class Certification:
-    """Certification entry."""
-
-    name: str = ""
-    issuer: str = ""
-    date_earned: Optional[date] = None
-    expiry_date: Optional[date] = None
-    credential_id: str = ""
-
-
-@dataclass
-class ResumeData:
-    """Complete resume data structure."""
-
-    personal_info: PersonalInfo
-    summary: str = ""
-    experience: List[Experience] = field(default_factory=list)
-    education: List[Education] = field(default_factory=list)
-    certifications: List[Certification] = field(default_factory=list)
-    skills: List[str] = field(default_factory=list)
-    languages: List[str] = field(default_factory=list)
-    projects: List[Dict[str, Any]] = field(default_factory=list)
-    raw_text: str = ""
-    confidence_score: float = 0.0
-    parsed_at: datetime = field(default_factory=datetime.now)
-
 
 class ResumeParser:
     """Main resume parsing service using AWS Textract and NLP."""
@@ -105,6 +36,7 @@ class ResumeParser:
             aws_secret_access_key=settings.aws_secret_access_key,
         )
 
+        self.nlp = None
         # Load spaCy model
         # try to load spaCy, but keep attributes defined even if unavailable
         try:
@@ -659,7 +591,7 @@ class ResumeParser:
         try:
             # Initialize resume data
             resume_data = ResumeData(
-                personal_info=PersonalInfo(),
+                personal_info=PersonalInfo(full_name=""),
                 experience=[],
                 education=[],
                 certifications=[],
@@ -699,11 +631,11 @@ class ResumeParser:
 
         except Exception as e:
             logger.error(f"Failed to parse resume data: {str(e)}")
-            return ResumeData(personal_info=PersonalInfo())
+            return ResumeData(personal_info=PersonalInfo(full_name=""))
 
     def _extract_personal_info(self, text: str) -> PersonalInfo:
         """Extract personal information from text."""
-        personal_info = PersonalInfo()
+        personal_info = PersonalInfo(full_name="")
 
         # Extract email
         email_pattern = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
@@ -731,35 +663,35 @@ class ResumeParser:
         if github_match:
             personal_info.github_url = github_match.group()
 
-        # Use spaCy NER for name extraction if available
-        if self.nlp:
-            try:
+        # Prefer spaCy NER for name extraction if available, otherwise fallback
+        try:
+            if self.nlp:
                 doc = self.nlp(text)
-                # Look for PERSON entity
                 for ent in doc.ents:
                     if ent.label_ == "PERSON":
-                        # Take first PERSON entity as name if it looks like a name line
                         candidate = ent.text.strip()
                         if candidate and len(candidate) < 100:
-                            personal_info.name = candidate
+                            personal_info.full_name = candidate
                             break
-            except Exception:
-                logger.debug("spaCy NER failed for name extraction, falling back to regex")
+        except Exception:
+            logger.debug("spaCy NER failed for name extraction, falling back to heuristics")
 
-        # If spaCy didn't yield a name, use previous heuristics
-        if not personal_info.name:
+        # If spaCy didn't yield a name, use heuristics (explicit 'Name:' or first non-empty line)
+        if not personal_info.full_name:
             name_pattern = r"(?:name|full name):\s*([^\n]+)"
             name_match = re.search(name_pattern, text, re.IGNORECASE)
             if name_match:
-                personal_info.name = name_match.group(1).strip()
+                personal_info.full_name = name_match.group(1).strip()
             else:
-                # Try first non-empty line as name
-                for line in text.split("\n"):
-                    line = line.strip()
-                    if not line:
+                # Try first non-empty line as name (skip lines with emails or URLs)
+                for line in text.splitlines():
+                    ln = line.strip()
+                    if not ln:
                         continue
-                    if len(line) < 100 and "@" not in line and not line.lower().startswith("summary"):
-                        personal_info.name = line
+                    if "@" in ln or "linkedin.com" in ln.lower() or "github.com" in ln.lower():
+                        continue
+                    if len(ln) < 100 and re.search(r"[A-Za-z]", ln):
+                        personal_info.full_name = ln
                         break
 
         # Extract location
@@ -996,8 +928,6 @@ class ResumeParser:
                                             experience.title = second
                                         else:
                                             experience.title = first
-                                else:
-                                    experience.title = first
 
             # If company not found yet, try to find ORG in other lines
             if not experience.company and org_candidate:
@@ -1075,7 +1005,7 @@ class ResumeParser:
     def _parse_experience_section(self, section: str) -> Optional[Experience]:
         """Parse individual experience section."""
         try:
-            experience = Experience()
+            experience = Experience(title="", company="", location="", start_date="")
 
             # Extract title and company (usually first line)
             lines = section.split("\n")
@@ -1133,43 +1063,45 @@ class ResumeParser:
         )
         return bool(re.match(date_pattern, line, re.IGNORECASE))
 
-    def _parse_date(self, date_str: str) -> Optional[date]:
-        """Parse date string to date object."""
-        try:
-            # Try strict formats first
-            formats = [
-                "%B %Y",
-                "%b %Y",
-                "%m/%Y",
-                "%Y-%m",
-                "%Y",
-                "%B %d, %Y",
-                "%b %d, %Y",
-                "%m/%d/%Y",
-            ]
+    def _parse_date(self, date_str: str) -> Optional[str]:
+        """Parse date string to standardized string format."""
+        if not date_str or not date_str.strip():
+            return None
 
-            for fmt in formats:
-                try:
-                    return datetime.strptime(date_str.strip(), fmt).date()
-                except Exception:
-                    continue
+        s = date_str.strip()
 
-            # Fallback: try dateutil if available which handles many informal formats
+        # Common strict formats
+        formats = [
+            "%B %Y",
+            "%b %Y",
+            "%B %d, %Y",
+            "%b %d, %Y",
+            "%m/%Y",
+            "%m/%d/%Y",
+            "%Y-%m",
+            "%Y",
+        ]
+
+        for fmt in formats:
             try:
-                from dateutil import parser as dateutil_parser
-
-                # dateutil may return a datetime; prefer year/month if present
-                dt = dateutil_parser.parse(date_str, default=datetime(1900, 1, 1))
-                return date(dt.year, dt.month, 1)
+                dt = datetime.strptime(s, fmt)
+                return dt.strftime("%Y-%m-%d")
             except Exception:
-                # Last resort: extract a 4-digit year
-                y = re.search(r"(19|20)\d{2}", date_str)
-                if y:
-                    return date(int(y.group()), 1, 1)
+                continue
 
-            return None
+        # Fallback: use dateutil if available
+        try:
+            from dateutil import parser as dateutil_parser
+
+            dt = dateutil_parser.parse(s, default=datetime(1900, 1, 1))
+            return dt.strftime("%Y-%m-%d")
         except Exception:
-            return None
+            # Last resort: extract 4-digit year
+            y = re.search(r"(19|20)\d{2}", s)
+            if y:
+                return f"{int(y.group())}-01-01"
+
+        return None
 
     def _extract_education(self, text: str) -> List[Education]:
         """Extract education information."""
@@ -1199,7 +1131,7 @@ class ResumeParser:
     def _parse_education_entry(self, entry: str) -> Optional[Education]:
         """Parse individual education entry."""
         try:
-            education = Education()
+            education = Education(degree="", institution="")
 
             # Extract degree and field
             degree_pattern = r"(Bachelor|Master|PhD|Associate|Certificate|Diploma)\s+(?:of|in)?\s*([^,\n]+)"
@@ -1212,16 +1144,16 @@ class ResumeParser:
             school_pattern = r"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:University|College|Institute|School))"
             school_match = re.search(school_pattern, entry)
             if school_match:
-                education.school = school_match.group(1)
+                education.institution = school_match.group(1)
 
             # Extract dates
             date_pattern = r"(\d{4})\s*[-–]\s*(\d{4}|present)"
             date_match = re.search(date_pattern, entry)
             if date_match:
-                education.start_date = date(int(date_match.group(1)), 1, 1)
+                education.start_date = f"{date_match.group(1)}-01-01"
                 end_year = date_match.group(2)
                 if end_year != "present":
-                    education.end_date = date(int(end_year), 12, 31)
+                    education.end_date = f"{end_year}-12-31"
 
             # Extract GPA
             gpa_pattern = r"GPA:\s*(\d+\.?\d*)"
@@ -1260,7 +1192,7 @@ class ResumeParser:
     def _parse_certification_entry(self, entry: str) -> Optional[Certification]:
         """Parse individual certification entry."""
         try:
-            certification = Certification()
+            certification = Certification(name="", issuer="")
 
             # Extract certification name and issuer
             # Common pattern: "Certification Name - Issuer"
@@ -1377,7 +1309,7 @@ class ResumeParser:
             max_score = 10.0
 
             # Personal info completeness (2 points)
-            if resume_data.personal_info.name:
+            if resume_data.personal_info.full_name:
                 score += 0.5
             if resume_data.personal_info.email:
                 score += 0.5

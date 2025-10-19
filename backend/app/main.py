@@ -11,7 +11,7 @@ import uvicorn
 from rich.console import Console
 
 from core.config import settings
-from routers import resume, jobs, insights, agent, company
+from routers import resume, jobs, insights, company
 
 console = Console()
 
@@ -51,7 +51,6 @@ app.include_router(resume.router, prefix="/api/resume", tags=["resume"])
 app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(insights.router, prefix="/api/insights", tags=["insights"])
 app.include_router(company.router, prefix="/api/company", tags=["company"])
-app.include_router(agent.router, prefix="/api/agent", tags=["agent"])
 
 
 @app.get("/")

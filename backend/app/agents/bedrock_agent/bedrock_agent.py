@@ -11,7 +11,7 @@ from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemory
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
-from tools import find_job_matches, parse_resume, search_jobs, get_company_info, analyze_skill_gap, generate_career_roadmap
+from tools import find_job_matches, parse_resume, search_jobs
 
 app = BedrockAgentCoreApp()
 
@@ -25,18 +25,8 @@ ci_sessions = {}
 current_session = None
 
 @tool
-def calculate(code: str) -> str:
-    session_id = current_session or 'default'
-    if session_id not in ci_sessions:
-        ci_sessions[session_id] = {'client': CodeInterpreter(REGION), 'session_id': None}
-    ci = ci_sessions[session_id]
-    if not ci['session_id']:
-        ci['session_id'] = ci['client'].start(name=f"session_{session_id[:30]}", session_timeout_seconds=1800)
-    result = ci['client'].invoke("executeCode", {"code": code, "language": "python"})
-    for event in result.get("stream", []):
-        if stdout := event.get("result", {}).get("structuredContent", {}).get("stdout"):
-            return stdout
-    return "Executed"
+def dummy(code: str) -> str:
+    return "dummy response"
 
 # --- Shared Memory for Multi-Agent Communication ---
 shared_memory = {"messages": []}
@@ -65,19 +55,14 @@ def create_agent(name, system_prompt, tools):
 agents = {
     "JobAdvisor": create_agent(
         "JobAdvisor",
-        "You are a career expert who provides job suggestions based on user resume and goals.",
-        [search_jobs]
-    ),
-    "LearningPathAdvisor": create_agent(
-        "LearningPathAdvisor",
-        "You are a learning path advisor who gives study/training suggestions.",
-        [parse_resume, analyze_skill_gap, generate_career_roadmap, get_company_info]
-    ),
-    "SummaryAdvisor": create_agent(
-        "SummaryAdvisor",
-        "You are a summarizer who consolidates advice from other agents and gives a career plan.",
-        [find_job_matches, parse_resume, search_jobs, get_company_info, analyze_skill_gap, generate_career_roadmap]
-    ),
+        """
+        You are a career advisor.
+        When asked to find or list real job openings, always use the `search_jobs` tool
+        instead of generating text on your own.
+        Only summarize or explain after you get tool results.
+        """,
+        [dummy, search_jobs]
+    )
 }
 
 # --- Entrypoint ---

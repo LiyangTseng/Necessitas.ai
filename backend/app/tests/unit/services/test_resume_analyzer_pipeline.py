@@ -2,29 +2,37 @@ import asyncio
 import json
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
-from app.services.resume_parser import ResumeParser
-from app.agents.resume_analyzer.resume_analyzer import ResumeAnalyzer
-from app.services.job_matching_engine import JobMatchingEngine
-from app.models import JobPosting
-from app.models.base import ExperienceLevel, WorkType, LocationPreference
-from app.models.user import UserProfile, Skill, WorkExperience, Education, Certification, CareerPreference
+from services.resume_parser import ResumeParser
+from services.job_matching_engine import JobMatchingEngine
+from models import (
+    JobPosting,
+    ExperienceLevel,
+    WorkType,
+    LocationPreference,
+    UserProfile,
+    Skill,
+    WorkExperience,
+    Education,
+    Certification,
+    CareerPreference,
+    ResumeData
+)
 from datetime import datetime
 import logging
-logger = logging.getLogger(__name__)
-from dataclasses import dataclass, field
 from pydantic.json import pydantic_encoder
+logger = logging.getLogger(__name__)
 
-def resume_to_user_profile(resume_data):
+def resume_to_user_profile(resume_data: ResumeData) -> UserProfile:
     """Convert ResumeData (dataclass) → UserProfile (Pydantic model)."""
     # 1. personal_info dict
     personal_info_dict = {
-        "name": resume_data.personal_info.name,
+        "name": resume_data.personal_info.full_name,
         "email": resume_data.personal_info.email,
         "phone": resume_data.personal_info.phone,
         "location": resume_data.personal_info.location,
         "linkedin_url": resume_data.personal_info.linkedin_url,
         "github_url": resume_data.personal_info.github_url,
-        "website": resume_data.personal_info.website,
+        "website": resume_data.personal_info.portfolio_url,
     }
 
     # 2. skills (全部給 level=3)
@@ -37,7 +45,7 @@ def resume_to_user_profile(resume_data):
             company=exp.company,
             location=exp.location,
             start_date=exp.start_date or datetime.now(),
-            end_date=exp.end_date,
+            end_date=exp.end_date or None,
             current=exp.current,
             description=exp.description,
             achievements=exp.achievements,
@@ -88,7 +96,7 @@ async def main():
     2. Send parsed output to JobMatchingEngine / ResumeAnalyzer
     3. Print JSON result
     """
-    sample_resume = "app/tests/samples/resume.pdf"
+    sample_resume = os.path.join(os.path.dirname(__file__), "../../samples/resume.pdf")
     if not os.path.exists(sample_resume):
         logger.error(f"Test resume file not found: {sample_resume}")
         return
@@ -102,10 +110,10 @@ async def main():
     # Step 2: Analysis
     logger.info("Stage 2: Convert to standardized UserProfile")
     analyzed_profile = resume_to_user_profile(resume_data)
-    logger.success("UserProfile Ready")
-    
+    logger.info("UserProfile Ready")
+
     # Step 3: Job Matching
-    
+
     # this is just for testing
     fake_job = JobPosting(
         job_id="fake-123",
@@ -122,7 +130,7 @@ async def main():
     matcher = JobMatchingEngine()
     logger.info("Stage 3: Job Matching")
     match_result = matcher.analyze_match(analyzed_profile, fake_job)
-    logger.success("Matching Done")
+    logger.info("Matching Done")
 
     # Step 4: Output JSON
     print("\n===== FINAL PIPELINE JSON =====")
