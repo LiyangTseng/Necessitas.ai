@@ -82,24 +82,21 @@ source env/bin/activate  # On Windows: env\Scripts\activate
 # Set up PYTHONPATH
 export PYTHONPATH=backend/app:$PYTHONPATH
 
-[TODO]
-# Install dependencies
-pip install -r backend/requirements.txt
+# Start the FastAPI backend service
+python backend/app/main.py
 
+# interact with LLM. AgentCore should utilize the API to query results (via tools)
+make agentdeploy
+agentcore invoke '{"prompt": "software engineering jobs"}'
+
+[TODO]
 # Install frontend dependencies
 cd frontend && npm install && cd ..
-
-# Start the backend
-cd backend && python app/main.py
-
 # Start the frontend (new terminal)
 cd frontend && npm run dev
 ```
 
-### **2. Deploy AWS Bedrock AgentCore runtime**
-```bash
-make agentdeploy
-```
+
 Type enter when being asked on deployment details. Theoretically we should be able to invoke agent response using commands such as `agentcore invoke '{"prompt": "Hello"}'`
 
 ### **3. Test the System**
@@ -210,3 +207,7 @@ careercompass-ai/
 ---
 
 **Ready to revolutionize career guidance!** 🎉
+
+
+## Notes
+Making agents utilize the "services" via python script importing modules is really hard, require hacking the dockerfile after agentcore configure. Not sure if this is what AgentCore is supposed to be.

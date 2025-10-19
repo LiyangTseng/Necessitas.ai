@@ -10,13 +10,14 @@ from strands import Agent, tool
 from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemoryConfig, RetrievalConfig
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter
-from tools import find_job_matches, parse_resume, search_jobs, get_company_info
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from tools import find_job_matches, parse_resume, search_jobs, get_company_info, analyze_skill_gap, generate_career_roadmap
 
 app = BedrockAgentCoreApp()
 
-MEMORY_ID = os.getenv("BEDROCK_AGENTCORE_MEMORY_ID")
-REGION = os.getenv("AWS_REGION")
+# TODO: get from config
+MEMORY_ID = os.getenv("BEDROCK_AGENTCORE_MEMORY_ID", "memory_ymkys-OsxFMnFs19")
+REGION = os.getenv("AWS_REGION", "us-east-1")
 MODEL_ID = "us.amazon.nova-premier-v1:0"
 
 # --- Code Interpreter ---
@@ -65,17 +66,17 @@ agents = {
     "JobAdvisor": create_agent(
         "JobAdvisor",
         "You are a career expert who provides job suggestions based on user resume and goals.",
-        [find_job_matches, parse_resume, search_jobs, get_company_info]
+        [search_jobs]
     ),
     "LearningPathAdvisor": create_agent(
         "LearningPathAdvisor",
         "You are a learning path advisor who gives study/training suggestions.",
-        [find_job_matches, parse_resume, search_jobs, get_company_info]
+        [parse_resume, analyze_skill_gap, generate_career_roadmap, get_company_info]
     ),
     "SummaryAdvisor": create_agent(
         "SummaryAdvisor",
         "You are a summarizer who consolidates advice from other agents and gives a career plan.",
-        [find_job_matches, parse_resume, search_jobs, get_company_info]
+        [find_job_matches, parse_resume, search_jobs, get_company_info, analyze_skill_gap, generate_career_roadmap]
     ),
 }
 

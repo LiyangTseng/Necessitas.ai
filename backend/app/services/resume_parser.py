@@ -11,13 +11,15 @@ import re
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, date
 from dataclasses import dataclass, field
-from loguru import logger
-import spacy
-from spacy.matcher import Matcher
+# import spacy
+# from spacy.matcher import Matcher
 import requests
 from urllib.parse import urlparse
 
-from app.core.config import settings
+from core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -104,17 +106,16 @@ class ResumeParser:
         )
 
         # Load spaCy model
-        try:
-            self.nlp = spacy.load("en_core_web_sm")
-            logger.info("spaCy NLP Model Loaded (en_core_web_sm)")
-        except Exception as e:
-            logger.warning(f"spaCy failed to load — falling back to basic parsing ({e})")
-            self.nlp = None
+        # try:
+        #     self.nlp = spacy.load("en_core_web_sm")
+        # except OSError:
+        #     logger.warning("spaCy model not found, using basic parsing")
+        #     self.nlp = None
 
         # Initialize matcher for skill extraction
-        if self.nlp:
-            self.matcher = Matcher(self.nlp.vocab)
-            self._setup_skill_patterns()
+        # if self.nlp:
+        #     self.matcher = Matcher(self.nlp.vocab)
+        #     self._setup_skill_patterns()
 
         # Common skills database
         self.skills_db = self._load_skills_database()
@@ -727,7 +728,7 @@ class ResumeParser:
             degree_match = re.search(degree_pattern, entry, re.IGNORECASE)
             if degree_match:
                 education.degree = degree_match.group(1)
-                education.field = degree_match.group(2).strip()
+                education.field_of_study = degree_match.group(2).strip()
 
             # Extract school
             school_pattern = r"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:University|College|Institute|School))"
