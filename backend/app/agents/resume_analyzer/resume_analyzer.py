@@ -7,16 +7,17 @@ AI agent for analyzing resumes and extracting insights.
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import json
-from loguru import logger
+import logging
+logger = logging.getLogger(__name__)
 
-from app.models import (
+from models import (
     UserProfile,
     Skill,
     WorkExperience,
     Education,
     Certification,
 )
-from app.services.resume_parser import ResumeParser
+from services.resume_parser import ResumeParser
 
 
 class ResumeAnalyzer:

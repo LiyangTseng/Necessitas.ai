@@ -6,9 +6,11 @@ AI agent for generating personalized career roadmaps.
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-from loguru import logger
+import logging
+logger = logging.getLogger(__name__)
 
-from app.models import UserProfile, CareerRoadmap, SkillGapAnalysis
+
+from models import UserProfile, CareerRoadmap, SkillGapAnalysis
 
 
 class RoadmapGenerator:
