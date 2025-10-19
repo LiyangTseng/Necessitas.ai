@@ -11,7 +11,7 @@ from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemory
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
-from tools import find_job_matches, parse_resume, search_jobs, get_company_info, analyze_skill_gap, generate_career_roadmap
+from tools import find_job_matches, parse_resume, search_jobs
 
 app = BedrockAgentCoreApp()
 
@@ -55,8 +55,13 @@ def create_agent(name, system_prompt, tools):
 agents = {
     "JobAdvisor": create_agent(
         "JobAdvisor",
-        "You are a career expert who provides job suggestions based on user resume and goals.",
-        [dummy]
+        """
+        You are a career advisor.
+        When asked to find or list real job openings, always use the `search_jobs` tool
+        instead of generating text on your own.
+        Only summarize or explain after you get tool results.
+        """,
+        [dummy, search_jobs]
     )
 }
 
