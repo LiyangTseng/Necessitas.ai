@@ -9,7 +9,8 @@ from app.models import JobPosting
 from app.models.base import ExperienceLevel, WorkType, LocationPreference
 from app.models.user import UserProfile, Skill, WorkExperience, Education, Certification, CareerPreference
 from datetime import datetime
-from loguru import logger
+import logging
+logger = logging.getLogger(__name__)
 from dataclasses import dataclass, field
 from pydantic.json import pydantic_encoder
 
