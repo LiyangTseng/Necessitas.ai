@@ -176,3 +176,7 @@ def generate_career_roadmap(user_profile_data: dict, target_role: str, timeline_
     except Exception as e:
         logger.error(f"Failed to generate career roadmap: {str(e)}")
         return {"success": False, "error": str(e)}
+
+if __name__ == "__main__":
+    jobs = search_jobs("software engineer", "San Francisco", 10)
+    print(jobs)
