@@ -8,7 +8,7 @@ An AI-powered career guidance system that analyzes resumes, matches job opportun
 ### Prerequisites
 - Python > 3.11
 - AWS CLI
-
+- Node.js >= v18.17.0
 ### **Setup (One-time)**
 #### Clone repo
 ```bash
