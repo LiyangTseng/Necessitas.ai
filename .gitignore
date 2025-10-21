@@ -199,7 +199,6 @@ config/api_keys.json
 # Data files
 data/
 *.csv
-*.json
 *.parquet
 
 # Model files
