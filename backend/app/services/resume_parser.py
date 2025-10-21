@@ -249,13 +249,18 @@ class ResumeParser:
             Parsed resume data
         """
         try:
+            logger.info(f"Starting resume parsing for file: {file_path}")
+
             # Extract text using AWS Textract
             raw_text = await self._extract_text_with_textract(file_path)
 
             if not raw_text:
                 raise Exception("Failed to extract text from resume")
 
+            logger.info(f"Text extraction completed. Extracted {len(raw_text)} characters.")
+
             # Parse resume data
+            logger.info("Parsing extracted text for resume data...")
             resume_data = self._parse_resume_data(raw_text)
             resume_data.raw_text = raw_text
 
@@ -322,7 +327,6 @@ class ResumeParser:
         """Extract text from document using AWS Textract."""
         try:
             with open(file_path, "rb") as document:
-                # Use Textract for document analysis
                 response = self.textract.analyze_document(
                     Document={"Bytes": document.read()},
                     FeatureTypes=["TABLES", "FORMS"],
@@ -334,7 +338,8 @@ class ResumeParser:
                 if block["BlockType"] == "LINE":
                     text_blocks.append(block["Text"])
 
-            return "\n".join(text_blocks)
+            extracted_text = "\n".join(text_blocks)
+            return extracted_text
 
         except Exception as e:
             logger.error(f"Textract extraction failed: {str(e)}")

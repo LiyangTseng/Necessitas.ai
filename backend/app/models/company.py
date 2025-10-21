@@ -169,3 +169,32 @@ class CompanyNews:
     def __post_init__(self):
         if self.tags is None:
             self.tags = []
+
+
+# ========== Company API Models ==========
+
+@dataclass
+class CompanySearchRequest:
+    """Request model for company search."""
+    query: str
+    limit: int = 10
+
+
+@dataclass
+class CompanySearchResponse:
+    """Response model for company search."""
+    success: bool
+    companies: List[CompanySearchResult] = None
+    error: Optional[str] = None
+
+    def __post_init__(self):
+        if self.companies is None:
+            self.companies = []
+
+
+@dataclass
+class CompanyInfoResponse:
+    """Response model for company information."""
+    success: bool
+    company: Optional[CompanyInfo] = None
+    error: Optional[str] = None

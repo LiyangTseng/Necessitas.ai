@@ -16,5 +16,8 @@ configure:
 launch:
 	agentcore launch --auto-update-on-conflict
 
+launch-local:
+	agentcore launch --local
+
 status:
 	agentcore status

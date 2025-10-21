@@ -5,7 +5,6 @@ Provides REST API endpoints for resume parsing and analysis.
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import tempfile
 import os
@@ -14,25 +13,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 from services.resume_parser import ResumeParser, ResumeData
-from models import PersonalInfo, Experience, Education, Certification
+from models import PersonalInfo, Experience, Education, Certification, ResumeParseRequest, ResumeParseResponse
 
 router = APIRouter()
 
 # Initialize service
 resume_parser = ResumeParser()
-
-
-class ResumeParseResponse(BaseModel):
-    """Response model for resume parsing."""
-    success: bool
-    data: Optional[ResumeData] = None
-    error: Optional[str] = None
-    confidence_score: Optional[float] = None
-
-
-class ResumeParseRequest(BaseModel):
-    """Request model for resume parsing from text."""
-    resume_text: str
 
 
 @router.post("/parse/file", response_model=ResumeParseResponse)
@@ -47,6 +33,7 @@ async def parse_resume_file(file: UploadFile = File(...)):
         Parsed resume data with confidence score
     """
     try:
+        logger.info(f"Received resume upload request for file: {file.filename}")
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file.filename.split('.')[-1]}") as temp_file:
             content = await file.read()
@@ -56,6 +43,7 @@ async def parse_resume_file(file: UploadFile = File(...)):
         try:
             # Parse resume
             resume_data = await resume_parser.parse_resume(temp_file_path)
+            logger.info(f"Parsed resume data: {resume_data}")
 
             return ResumeParseResponse(
                 success=True,
