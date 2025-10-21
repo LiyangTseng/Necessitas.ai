@@ -28,6 +28,10 @@ from .user import (
     WorkExperience,
     CareerPreference,
     UserProfile,
+
+    # Resume API models
+    ResumeParseRequest,
+    ResumeParseResponse,
 )
 
 # Job models
@@ -38,7 +42,13 @@ from .job import (
     JobFilter,
     JobAlert,
     JobApplication,
-    SalaryData
+    SalaryData,
+
+    # Jobs API models
+    JobSearchRequest,
+    JobSearchResponse,
+    JobMatchRequest,
+    JobMatchResponse
 )
 
 # Company models
@@ -50,13 +60,34 @@ from .company import (
     CompanyCulture,
     CompanyBenefits,
     CompanyNews,
+
+    # Company API models
+    CompanySearchRequest,
+    CompanySearchResponse,
+    CompanyInfoResponse
 )
 
 # Analysis models
 from .analysis import (
     MatchAnalysis,
-    DetailedScores
+    DetailedScores,
+
+    # Insights API models
+    SkillGapRequest,
+    SkillGapResponse,
+    CareerRoadmapRequest,
+    CareerRoadmapResponse,
+    MatchAnalysisRequest,
+    MatchAnalysisResponse
 )
+
+# Chat models
+from .chat import (
+    ChatMessage,
+    ChatRequest,
+    ChatResponse
+)
+
 # Re-export all models for easy importing
 __all__ = [
     # Base enums
@@ -79,6 +110,10 @@ __all__ = [
     "CareerPreference",
     "UserProfile",
 
+    # Resume API models
+    "ResumeParseRequest",
+    "ResumeParseResponse",
+
     # Job models
     "JobPosting",
     "JobSearchResult",
@@ -88,11 +123,25 @@ __all__ = [
     "JobApplication",
     "SalaryData",
 
+    # Jobs API models
+    "JobSearchRequest",
+    "JobSearchResponse",
+    "JobMatchRequest",
+    "JobMatchResponse",
+
     # Analysis models
     "MatchAnalysis",
     "DetailedScores",
     "SkillGapAnalysis",
     "CareerRoadmap",
+
+    # Insights API models
+    "SkillGapRequest",
+    "SkillGapResponse",
+    "CareerRoadmapRequest",
+    "CareerRoadmapResponse",
+    "MatchAnalysisRequest",
+    "MatchAnalysisResponse",
 
     # Company models
     "CompanyInfo",
@@ -102,4 +151,14 @@ __all__ = [
     "CompanyCulture",
     "CompanyBenefits",
     "CompanyNews",
+
+    # Company API models
+    "CompanySearchRequest",
+    "CompanySearchResponse",
+    "CompanyInfoResponse",
+
+    # Chat models
+    "ChatMessage",
+    "ChatRequest",
+    "ChatResponse",
 ]

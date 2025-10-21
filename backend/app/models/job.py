@@ -173,3 +173,48 @@ class SalaryData:
     def __post_init__(self):
         if self.last_updated is None:
             self.last_updated = datetime.now()
+
+
+# ========== Jobs API Models ==========
+
+@dataclass
+class JobSearchRequest:
+    """Request model for job search."""
+    query: str
+    location: Optional[str] = None
+    limit: int = 20
+
+
+@dataclass
+class JobSearchResponse:
+    """Response model for job search."""
+    success: bool
+    jobs: List[JobPosting] = None
+    error: Optional[str] = None
+
+    def __post_init__(self):
+        if self.jobs is None:
+            self.jobs = []
+
+
+@dataclass
+class JobMatchRequest:
+    """Request model for job matching."""
+    user_profile: Dict[str, Any]  # UserProfile as dict
+    job_criteria: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.job_criteria is None:
+            self.job_criteria = {}
+
+
+@dataclass
+class JobMatchResponse:
+    """Response model for job matching."""
+    success: bool
+    matches: List[Dict[str, Any]] = None  # List of (job, match_analysis) pairs
+    error: Optional[str] = None
+
+    def __post_init__(self):
+        if self.matches is None:
+            self.matches = []

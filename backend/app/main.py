@@ -8,12 +8,22 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
+import logging
 from rich.console import Console
 
 from core.config import settings
-from routers import resume, jobs, insights, company
+from routers import resume, jobs, insights, company, chat
 
 console = Console()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+    ]
+)
 
 
 @asynccontextmanager
@@ -51,6 +61,7 @@ app.include_router(resume.router, prefix="/api/resume", tags=["resume"])
 app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(insights.router, prefix="/api/insights", tags=["insights"])
 app.include_router(company.router, prefix="/api/company", tags=["company"])
+app.include_router(chat.router, prefix="/api", tags=["chat"])
 
 
 @app.get("/")
@@ -68,6 +79,12 @@ async def root():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "necessitas.ai", "version": "1.0.0"}
+
+
+@app.get("/test")
+async def test_endpoint():
+    """Test endpoint for debugging."""
+    return {"message": "Backend is working!", "timestamp": "2024-01-20"}
 
 
 if __name__ == "__main__":

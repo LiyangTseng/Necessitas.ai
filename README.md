@@ -89,6 +89,12 @@ python backend/app/main.py
 make agentdeploy
 agentcore invoke '{"prompt": "software engineering jobs"}'
 
+# Or test locally
+make configure
+agentcore launch --local
+curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello!"}'
 [TODO]
 # Install frontend dependencies
 cd frontend && npm install && cd ..
@@ -211,3 +217,37 @@ careercompass-ai/
 
 ## Notes
 Making agents utilize the "services" via python script importing modules is really hard, require hacking the dockerfile after agentcore configure. Not sure if this is what AgentCore is supposed to be.
+```
+─────────────────────────────────────────────────────── Agent Status: main_agent ───────────────────────────────────────────────────────╮
+│ Ready - Agent deployed and endpoint available                                                                                          │
+│                                                                                                                                        │
+│ Agent Details:                                                                                                                         │
+│ Agent Name: main_agent                                                                                                                 │
+│ Agent ARN: arn:aws:bedrock-agentcore:us-east-1:355444226013:runtime/main_agent-B3Kog7FjWn                                              │
+│ Endpoint: DEFAULT (READY)                                                                                                              │
+│ Region: us-east-1 | Account: 355444226013                                                                                              │
+│                                                                                                                                        │
+│ Memory: STM only (memory_ymkys-OsxFMnFs19)                                                                                             │
+│                                                                                                                                        │
+│ Deployment Info:                                                                                                                       │
+│ Created: 2025-10-18 06:38:32.930214+00:00                                                                                              │
+│ Last Updated: 2025-10-19 00:22:27.970153+00:00                                                                                         │
+│                                                                                                                                        │
+│ 📋 CloudWatch Logs:                                                                                                                    │
+│    /aws/bedrock-agentcore/runtimes/main_agent-B3Kog7FjWn-DEFAULT --log-stream-name-prefix "2025/10/19/[runtime-logs]"                  │
+│    /aws/bedrock-agentcore/runtimes/main_agent-B3Kog7FjWn-DEFAULT --log-stream-names "otel-rt-logs"                                     │
+│                                                                                                                                        │
+│ 🔍 GenAI Observability Dashboard:                                                                                                      │
+│    https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#gen-ai-observability/agent-core                                     │
+│                                                                                                                                        │
+│ ⏱️  Note: Observability data may take up to 10 minutes to appear after first launch                                                     │
+│                                                                                                                                        │
+│ 💡 Tail logs with:                                                                                                                     │
+│    aws logs tail /aws/bedrock-agentcore/runtimes/main_agent-B3Kog7FjWn-DEFAULT --log-stream-name-prefix "2025/10/19/[runtime-logs]"    │
+│ --follow                                                                                                                               │
+│    aws logs tail /aws/bedrock-agentcore/runtimes/main_agent-B3Kog7FjWn-DEFAULT --log-stream-name-prefix "2025/10/19/[runtime-logs]"    │
+│ --since 1h                                                                                                                             │
+│                                                                                                                                        │
+│ Ready to invoke:                                                                                                                       │
+│    agentcore invoke '{"prompt": "Hello"}'
+```

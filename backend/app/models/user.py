@@ -77,6 +77,16 @@ class ResumeData:
     parsed_at: datetime = field(default_factory=datetime.now)
 
 
+    def __str__(self) -> str:
+        return f"""ResumeData(
+            personal_info={self.personal_info},
+            summary={self.summary},
+            experience={self.experience},
+            education={self.education},
+            certifications={self.certifications},
+            skills={self.skills},
+        )"""
+
 # ========== User Profile Models ==========
 
 class Skill(BaseModel):
@@ -166,3 +176,20 @@ class UserProfile(BaseModel):
             created_at={self.created_at},
             updated_at={self.updated_at}
         )"""
+
+
+# ========== Resume API Models ==========
+
+@dataclass
+class ResumeParseResponse:
+    """Response model for resume parsing."""
+    success: bool
+    data: Optional[ResumeData] = None
+    error: Optional[str] = None
+    confidence_score: Optional[float] = None
+
+
+@dataclass
+class ResumeParseRequest:
+    """Request model for resume parsing from text."""
+    resume_text: str

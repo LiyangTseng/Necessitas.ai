@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>necessitas.ai - Intelligent Career Guidance</title>
+        <title>Necessitas.ai - Intelligent Career Guidance</title>
         <meta name="description" content="AI-powered career guidance and job matching platform" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -62,13 +62,8 @@ export default function Home() {
             <div className="flex justify-between items-center py-6">
               <div className="flex items-center">
                 <Briefcase className="w-8 h-8 text-indigo-600" />
-                <span className="ml-2 text-2xl font-bold text-gray-900">necessitas.ai</span>
+                <span className="ml-2 text-2xl font-bold text-gray-900">Necessitas.ai</span>
               </div>
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/dashboard" className="text-gray-600 hover:text-indigo-600">Dashboard</Link>
-                <Link href="/upload" className="text-gray-600 hover:text-indigo-600">Upload Resume</Link>
-                <Link href="/jobs" className="text-gray-600 hover:text-indigo-600">Find Jobs</Link>
-              </nav>
             </div>
           </div>
         </header>
@@ -91,7 +86,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
+                className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto"
               >
                 Get personalized career guidance, job recommendations, and skill development
                 roadmaps powered by advanced AI technology.
@@ -101,30 +96,23 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center"
+                className="flex justify-center"
               >
                 <Link
-                  href="/upload"
-                  className="inline-flex items-center px-8 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+                  href="/chat"
+                  className="inline-flex items-center px-12 py-6 bg-indigo-600 text-white font-bold text-lg rounded-xl hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
-                  <Upload className="w-5 h-5 mr-2" />
-                  Upload Resume
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-                <Link
-                  href="/jobs"
-                  className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-lg border-2 border-indigo-600 hover:bg-indigo-50 transition-colors"
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Browse Jobs
+                  <Target className="w-6 h-6 mr-3" />
+                  Start Your Career Journey
+                  <ArrowRight className="w-6 h-6 ml-3" />
                 </Link>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-white">
+        {/* Stats Section - Commented out for now */}
+        {/* <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
@@ -141,18 +129,28 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
-        {/* Features Section */}
-        <section className="py-20">
+        {/* How It Works Section */}
+        <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                How necessitas.ai Works
-              </h2>
-              <p className="text-xl text-gray-600">
-                Our AI-powered platform provides comprehensive career guidance
-              </p>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-4xl font-bold text-gray-900 mb-4"
+              >
+                How Necessitas.ai Works
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-xl text-gray-600 max-w-3xl mx-auto"
+              >
+                Our AI-powered platform provides comprehensive career guidance through intelligent analysis and personalized recommendations
+              </motion.p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -173,31 +171,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 bg-indigo-600">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Ready to Advance Your Career?
-              </h2>
-              <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-                Join thousands of professionals who have found their dream jobs with necessitas.ai
-              </p>
-              <Link
-                href="/upload"
-                className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Target className="w-5 h-5 mr-2" />
-                Get Started Now
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </motion.div>
-          </div>
-        </section>
 
         {/* Footer */}
         <footer className="bg-gray-900 text-white py-12">
@@ -210,12 +183,6 @@ export default function Home() {
               <p className="text-gray-400 mb-4">
                 Powered by AWS Bedrock AgentCore • Built for AWS AI Agent Global Hackathon 2025
               </p>
-              <div className="flex justify-center space-x-6">
-                <Link href="/dashboard" className="text-gray-400 hover:text-white">Dashboard</Link>
-                <Link href="/upload" className="text-gray-400 hover:text-white">Upload</Link>
-                <Link href="/jobs" className="text-gray-400 hover:text-white">Jobs</Link>
-                <Link href="/insights" className="text-gray-400 hover:text-white">Insights</Link>
-              </div>
             </div>
           </div>
         </footer>
