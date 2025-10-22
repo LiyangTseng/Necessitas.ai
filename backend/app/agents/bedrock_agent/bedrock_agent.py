@@ -11,7 +11,36 @@ from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemory
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
-from tools import find_job_matches, parse_resume, search_jobs
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Current working directory: %s", os.getcwd())
+logger.info("Files in the current directory: %s", os.listdir(os.getcwd()))
+
+# check if the current directory is in docker
+if os.getcwd() == "/app":
+    # set python path to backend/app
+    os.environ["PYTHONPATH"] = "/app/backend/app"
+logger.info("PYTHONPATH: %s", os.getenv("PYTHONPATH"))
+
+try:
+    from .tools import find_job_matches, parse_resume, search_jobs
+    logger.info("Successfully imported tools using relative import")
+except ImportError as e:
+    logger.error("Relative import failed: %s", e)
+    # Fallback for deployed environment
+    import sys
+    import os
+    current_dir = os.path.dirname(__file__)
+    sys.path.append(current_dir)
+    try:
+        from tools import find_job_matches, parse_resume, search_jobs
+        logger.info("Successfully imported tools using absolute import")
+    except ImportError as e2:
+        logger.error("Absolute import also failed: %s", e2)
+        raise
+
 
 app = BedrockAgentCoreApp()
 
