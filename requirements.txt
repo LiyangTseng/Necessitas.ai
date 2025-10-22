@@ -14,3 +14,5 @@ flake8
 mypy
 pre-commit
 pydantic_settings # consider removing this
+bedrock_agentcore_starter_toolkit
+boto3

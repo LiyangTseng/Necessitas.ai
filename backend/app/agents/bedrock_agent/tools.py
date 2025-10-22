@@ -6,7 +6,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # API base URL - in production this would be configurable
-API_BASE_URL = "http://localhost:8000/api"
+import os
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api")
 
 async def _make_api_request(endpoint: str, method: str = "GET", data: Dict[str, Any] = None) -> Dict[str, Any]:
     """Make HTTP request to API endpoint."""

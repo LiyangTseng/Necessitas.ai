@@ -89,6 +89,9 @@ python backend/app/main.py
 make agentdeploy
 agentcore invoke '{"prompt": "software engineering jobs"}'
 
+# [TODO] Use python script to invoke the AgentCore Runtime in remote
+python invoke.py
+
 # Or test locally
 make configure
 agentcore launch --local
@@ -216,8 +219,8 @@ careercompass-ai/
 
 
 ## Notes
-Making agents utilize the "services" via python script importing modules is really hard, require hacking the dockerfile after agentcore configure. Not sure if this is what AgentCore is supposed to be.
-```
+- Making agents utilize the "services" via python script importing modules is really hard, require hacking the dockerfile after agentcore configure. Not sure if this is what AgentCore is supposed to be.
+```shell
 ─────────────────────────────────────────────────────── Agent Status: main_agent ───────────────────────────────────────────────────────╮
 │ Ready - Agent deployed and endpoint available                                                                                          │
 │                                                                                                                                        │
@@ -251,3 +254,7 @@ Making agents utilize the "services" via python script importing modules is real
 │ Ready to invoke:                                                                                                                       │
 │    agentcore invoke '{"prompt": "Hello"}'
 ```
+- Get the AWS Bearer token:
+  ```shell
+  aws ecr get-authorization-token
+  ```
