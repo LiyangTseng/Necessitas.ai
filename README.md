@@ -108,6 +108,35 @@ cd frontend && npm run dev
 
 Type enter when being asked on deployment details. Theoretically we should be able to invoke agent response using commands such as `agentcore invoke '{"prompt": "Find me real 3 job openings for software engineer intern with apply urls"}'`
 
+### **2. Production Setup**
+Note: we should have the ECR repo (*necessitas-backend* in this example), ECS cluster (*necessitas-cluster* in this example), and ECS service (*necessitas-backend-service* in this example) setup before the following operations. Also The below operations are done in project root.
+
+
+- Push the backend into AWS ECR repo . .
+  ```shell
+  # Have the docker image built in local (necessitas_backend in this case)
+  docker build -t necessitas_backend .
+
+  # Login to ECR
+  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-west-2.amazonaws.com
+
+  # Tag docker image
+  docker tag necessitas_backend:latest $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-west-2.amazonaws.com/necessitas-backend:latest
+
+  # Push docker image into AWS ECR
+  docker push $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-west-2.amazonaws.com/necessitas-backend:latest
+  ```
+- Update ECS.
+  ```shell
+  aws ecs update-service --cluster necessitas-cluster --service necessitas-backend-service --force-new-deployment
+  ```
+- Check deployment status
+  ```shell
+  # Check necessitas-cluster exists in the output
+  aws ecs list-clusters
+  aws ecs list-services --cluster necessitas-cluster
+  ```
+
 ### **3. Test the System**
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{"message": "Hello, can you help me with my career?", "conversation_history": []}' http://localhost:8000/api/chat

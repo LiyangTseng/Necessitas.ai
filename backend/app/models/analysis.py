@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
 from models.user import UserProfile
@@ -157,3 +157,51 @@ class TimelineMilestone:
             self.skills_to_achieve = []
         if self.success_criteria is None:
             self.success_criteria = []
+
+
+# ========== Insights API Models ==========
+
+@dataclass
+class SkillGapRequest:
+    """Request model for skill gap analysis."""
+    user_profile: Dict[str, Any]
+    target_role: Optional[str] = None
+
+
+@dataclass
+class SkillGapResponse:
+    """Response model for skill gap analysis."""
+    success: bool
+    analysis: Optional[SkillGapAnalysis] = None
+    error: Optional[str] = None
+
+
+@dataclass
+class CareerRoadmapRequest:
+    """Request model for career roadmap generation."""
+    user_profile: Dict[str, Any]
+    target_role: str
+    timeline_months: Optional[int] = None
+
+
+@dataclass
+class CareerRoadmapResponse:
+    """Response model for career roadmap generation."""
+    success: bool
+    roadmap: Optional[CareerRoadmap] = None
+    error: Optional[str] = None
+
+
+@dataclass
+class MatchAnalysisRequest:
+    """Request model for job match analysis."""
+    user_profile: Dict[str, Any]
+    job_posting: Dict[str, Any]
+
+
+@dataclass
+class MatchAnalysisResponse:
+    """Response model for job match analysis."""
+    success: bool
+    analysis: Optional[MatchAnalysis] = None
+    error: Optional[str] = None

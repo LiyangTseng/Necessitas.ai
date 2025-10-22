@@ -11,12 +11,15 @@ logger = logging.getLogger(__name__)
 
 from models import (
     UserProfile,
-    SkillGapResponse,
-    CareerRoadmapResponse,
-    MatchAnalysisResponse,
+    SkillGapAnalysis,
+    CareerRoadmap,
+    MatchAnalysis,
     SkillGapRequest,
+    SkillGapResponse,
     CareerRoadmapRequest,
-    MatchAnalysisRequest
+    CareerRoadmapResponse,
+    MatchAnalysisRequest,
+    MatchAnalysisResponse
 )
 
 router = APIRouter()
