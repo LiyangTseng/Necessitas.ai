@@ -5,7 +5,7 @@ Data models for chat functionality and AI assistant interactions.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 @dataclass
@@ -20,6 +20,8 @@ class ChatRequest:
     """Request model for chat messages."""
     message: str
     conversation_history: List[ChatMessage] = None
+    session_id: Optional[str] = None
+    resume_context: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.conversation_history is None:

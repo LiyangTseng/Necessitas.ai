@@ -30,10 +30,12 @@ class ResumeParser:
         """Initialize the resume parser."""
         # AWS Textract client
         textract_credentials = get_textract_credentials()
-        logger.info(f"Textract credentials: {textract_credentials}")
+        print(textract_credentials)
         self.textract = boto3.client(
             "textract",
-            **get_textract_credentials()
+            aws_access_key_id=textract_credentials["aws_access_key_id"],
+            aws_secret_access_key=textract_credentials["aws_secret_access_key"],
+            region_name=textract_credentials["region_name"]
         )
 
         self.nlp = None
@@ -344,33 +346,6 @@ class ResumeParser:
         except Exception as e:
             logger.error(f"Textract extraction failed: {str(e)}")
             # Fallback to basic text extraction
-            return await self._extract_text_fallback(file_path)
-
-    async def _extract_text_fallback(self, file_path: str) -> str:
-        """Fallback text extraction method."""
-        try:
-            if file_path.lower().endswith(".pdf"):
-                import PyPDF2
-
-                with open(file_path, "rb") as file:
-                    reader = PyPDF2.PdfReader(file)
-                    text = ""
-                    for page in reader.pages:
-                        text += page.extract_text()
-                    return text
-            elif file_path.lower().endswith(".docx"):
-                from docx import Document
-
-                doc = Document(file_path)
-                text = ""
-                for paragraph in doc.paragraphs:
-                    text += paragraph.text + "\n"
-                return text
-            else:
-                with open(file_path, "r", encoding="utf-8") as file:
-                    return file.read()
-        except Exception as e:
-            logger.error(f"Fallback text extraction failed: {str(e)}")
             return ""
 
     def _parse_resume_data(self, raw_text: str) -> ResumeData:
