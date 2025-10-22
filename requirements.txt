@@ -16,3 +16,4 @@ pre-commit
 pydantic_settings # consider removing this
 bedrock_agentcore_starter_toolkit
 boto3
+python-dotenv

@@ -12,7 +12,7 @@ import logging
 
 from services.job_fetcher.base_adapter import JobDataAdapter
 from models.job import JobPosting, WorkType, ExperienceLevel
-from core.config import settings
+from core.env import get_adzuna_credentials
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +21,9 @@ class AdzunaJobAdapter(JobDataAdapter):
 
     def __init__(self, app_id: str = None, app_key: str = None, country: str = "us"):
         """Initialize Adzuna adapter."""
-        self.app_id = app_id or settings.adzuna_app_id
-        self.app_key = app_key or settings.adzuna_app_key
+        adzuna_credentials = get_adzuna_credentials()
+        self.app_id = app_id or adzuna_credentials["adzuna_app_id"]
+        self.app_key = app_key or adzuna_credentials["adzuna_app_key"]
         self.country = country
         self.base_url = f"https://api.adzuna.com/v1/api/jobs/us"
         self.headers = {"Content-Type": "application/json"}
