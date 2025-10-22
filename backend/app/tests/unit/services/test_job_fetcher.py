@@ -6,9 +6,9 @@ import unittest
 from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime
 
-from services.job_fetcher.service import JobFetcher
-from models.job import JobPosting, WorkType, ExperienceLevel
-from tests.unit.utils.test_utils import AsyncTestCase, MockDataFactory
+from app.services.job_fetcher.service import JobFetcher
+from app.models.job import JobPosting, WorkType, ExperienceLevel
+from app.tests.unit.utils.test_utils import AsyncTestCase, MockDataFactory
 
 
 class TestJobFetcher(AsyncTestCase):

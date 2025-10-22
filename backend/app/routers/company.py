@@ -10,8 +10,8 @@ from typing import List, Optional, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from services.company_info_fetcher.service import CompanyInfoFetcher
-from models import CompanyInfo, CompanySearchResult
+from ..services.company_info_fetcher.service import CompanyInfoFetcher
+from ..models import CompanyInfo, CompanySearchResult
 
 router = APIRouter()
 

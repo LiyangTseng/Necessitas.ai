@@ -10,9 +10,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 import logging
 
-from services.job_fetcher.base_adapter import JobDataAdapter
-from models.job import JobPosting, WorkType, ExperienceLevel
-from core.config import settings
+from .base_adapter import JobDataAdapter
+from ..models.job import JobPosting, WorkType, ExperienceLevel
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 

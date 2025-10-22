@@ -4,11 +4,11 @@ Unit tests for JobRecommender service using unittest.
 
 import unittest
 from datetime import datetime, date
-from models.user import UserProfile, Skill, WorkExperience, Education, CareerPreference
-from models.job import JobPosting
-from models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
-from models.analysis import MatchAnalysis, DetailedScores
-from services.job_matching_engine import JobMatchingEngine
+from app.models.user import UserProfile, Skill, WorkExperience, Education, CareerPreference
+from app.models.job import JobPosting
+from app.models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
+from app.models.analysis import MatchAnalysis, DetailedScores
+from app.services.job_matching_engine import JobMatchingEngine
 
 class TestJobMatchingEngine(unittest.TestCase):
     """Test cases for JobMatchingEngine service."""

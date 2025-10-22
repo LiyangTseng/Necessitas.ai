@@ -7,10 +7,10 @@ from typing import List, Optional
 from datetime import datetime
 import logging
 
-from services.job_fetcher.base_adapter import JobDataAdapter
-from services.job_fetcher.adapters import AdzunaJobAdapter
-from models.job import JobPosting, JobSearchResult, JobMatchScore
-from core.config import settings
+from .base_adapter import JobDataAdapter
+from .adapters import AdzunaJobAdapter
+from ..models.job import JobPosting, JobSearchResult, JobMatchScore
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 

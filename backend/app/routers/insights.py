@@ -10,8 +10,8 @@ from typing import List, Optional, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from services.job_matching_engine import JobMatchingEngine
-from models import UserProfile, MatchAnalysis
+from ..services.job_matching_engine import JobMatchingEngine
+from ..models import UserProfile, MatchAnalysis
 
 router = APIRouter()
 

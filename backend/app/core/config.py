@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     linkedin_api_key: Optional[str] = None
     indeed_api_key: Optional[str] = None
     openai_api_key: Optional[str] = None
+    rapidapi_key: Optional[str] = None
 
     # File Storage
     upload_bucket: str = "careercompass-uploads"

@@ -88,6 +88,22 @@ from .chat import (
     ChatResponse
 )
 
+# Coursera models
+from .coursera import (
+    Course,
+    Certification,
+    LearningRecommendation,
+    LearningPath,
+    LearningPathStep,
+    CourseSearchRequest,
+    CourseSearchResponse,
+    CertificationSearchRequest,
+    CertificationSearchResponse,
+    CourseLevel,
+    CourseType,
+    Language
+)
+
 # Re-export all models for easy importing
 __all__ = [
     # Base enums
@@ -161,4 +177,18 @@ __all__ = [
     "ChatMessage",
     "ChatRequest",
     "ChatResponse",
+
+    # Coursera models
+    "Course",
+    "Certification",
+    "LearningRecommendation",
+    "LearningPath",
+    "LearningPathStep",
+    "CourseSearchRequest",
+    "CourseSearchResponse",
+    "CertificationSearchRequest",
+    "CertificationSearchResponse",
+    "CourseLevel",
+    "CourseType",
+    "Language",
 ]

@@ -11,7 +11,7 @@ import logging
 import httpx
 import json
 
-from models.chat import ChatMessage, ChatRequest, ChatResponse
+from ..models.chat import ChatMessage, ChatRequest, ChatResponse
 
 logger = logging.getLogger(__name__)
 

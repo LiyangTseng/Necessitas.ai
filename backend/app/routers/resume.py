@@ -12,8 +12,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from services.resume_parser import ResumeParser, ResumeData
-from models import PersonalInfo, Experience, Education, Certification, ResumeParseRequest, ResumeParseResponse
+from ..services.resume_parser import ResumeParser, ResumeData
+from ..models import PersonalInfo, Experience, Education, Certification, ResumeParseRequest, ResumeParseResponse
 
 router = APIRouter()
 

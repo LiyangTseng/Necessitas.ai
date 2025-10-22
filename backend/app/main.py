@@ -11,8 +11,8 @@ import uvicorn
 import logging
 from rich.console import Console
 
-from core.config import settings
-from routers import resume, jobs, insights, company, chat
+from .core.config import settings
+from .routers import resume, jobs, insights, company, chat, coursera
 
 console = Console()
 
@@ -62,6 +62,7 @@ app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 app.include_router(insights.router, prefix="/api/insights", tags=["insights"])
 app.include_router(company.router, prefix="/api/company", tags=["company"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(coursera.router, prefix="/api/coursera", tags=["coursera"])
 
 
 @app.get("/")

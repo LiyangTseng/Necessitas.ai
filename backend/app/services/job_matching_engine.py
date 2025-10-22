@@ -11,7 +11,7 @@ import numpy as np
 # from sklearn.feature_extraction.text import TfidfVectorizer
 # from sklearn.metrics.pairwise import cosine_similarity
 # from sentence_transformers import SentenceTransformer
-from models import (
+from ..models import (
     UserProfile,
     JobPosting,
     WorkType,
@@ -20,11 +20,13 @@ from models import (
     MatchAnalysis,
     DetailedScores,
 )
+from ..models.coursera import LearningRecommendation
+from .coursera_service import CourseraService
 
 import logging
 logger = logging.getLogger(__name__)
 
-from core.config import settings
+from ..core.config import settings
 
 class JobMatchingEngine:
     """Advanced job-candidate matching engine using ML and multi-dimensional scoring."""
@@ -37,6 +39,7 @@ class JobMatchingEngine:
             "company_fit": 0.05,
             "work_type": 0.05,
         }
+        self.coursera_service = CourseraService()
 
     # def _load_models(self):
     #     """Load ML models for job matching."""
@@ -360,6 +363,135 @@ class JobMatchingEngine:
             reasons.append("Salary expectations met")
 
         return reasons
+
+    async def get_learning_recommendations_for_job(
+        self, user_profile: UserProfile, job: JobPosting
+    ) -> LearningRecommendation:
+        """
+        Get learning recommendations based on skill gaps for a specific job.
+
+        Args:
+            user_profile: User profile
+            job: Target job posting
+
+        Returns:
+            Learning recommendations to bridge skill gaps
+        """
+        try:
+            # Analyze match to identify skill gaps
+            match_analysis = self.analyze_match(user_profile, job)
+            skill_gaps = match_analysis.skill_gaps
+
+            if not skill_gaps:
+                # If no skill gaps, suggest advanced skills for career growth
+                skill_gaps = self._suggest_advanced_skills(user_profile, job)
+
+            # Get learning recommendations from Coursera
+            recommendations = await self.coursera_service.get_learning_recommendations(
+                user_id=user_profile.user_id,
+                skill_gaps=skill_gaps,
+                target_role=job.title
+            )
+
+            return recommendations
+
+        except Exception as e:
+            logger.error(f"Failed to get learning recommendations: {str(e)}")
+            return LearningRecommendation(
+                user_id=user_profile.user_id,
+                skill_gaps=[],
+                target_role=job.title
+            )
+
+    async def get_career_development_plan(
+        self, user_profile: UserProfile, target_role: str
+    ) -> LearningRecommendation:
+        """
+        Get a comprehensive career development plan for a target role.
+
+        Args:
+            user_profile: User profile
+            target_role: Target role to achieve
+
+        Returns:
+            Learning recommendations for career development
+        """
+        try:
+            # Identify skills needed for the target role
+            required_skills = self._get_skills_for_role(target_role)
+            current_skills = [skill.name.lower() for skill in user_profile.skills]
+            
+            # Find skill gaps
+            skill_gaps = list(set(required_skills) - set(current_skills))
+
+            if not skill_gaps:
+                # If user has all skills, suggest advanced/leadership skills
+                skill_gaps = self._suggest_leadership_skills(target_role)
+
+            # Get learning recommendations
+            recommendations = await self.coursera_service.get_learning_recommendations(
+                user_id=user_profile.user_id,
+                skill_gaps=skill_gaps,
+                target_role=target_role
+            )
+
+            return recommendations
+
+        except Exception as e:
+            logger.error(f"Failed to get career development plan: {str(e)}")
+            return LearningRecommendation(
+                user_id=user_profile.user_id,
+                skill_gaps=[],
+                target_role=target_role
+            )
+
+    def _suggest_advanced_skills(self, user_profile: UserProfile, job: JobPosting) -> List[str]:
+        """Suggest advanced skills for career growth."""
+        # This would be enhanced with ML-based skill suggestions
+        advanced_skills = [
+            "leadership", "project management", "system design", 
+            "architecture", "mentoring", "strategic thinking"
+        ]
+        
+        # Filter out skills user already has
+        current_skills = [skill.name.lower() for skill in user_profile.skills]
+        return [skill for skill in advanced_skills if skill not in current_skills][:3]
+
+    def _suggest_leadership_skills(self, target_role: str) -> List[str]:
+        """Suggest leadership and advanced skills for senior roles."""
+        leadership_skills = {
+            "senior": ["technical leadership", "mentoring", "architecture"],
+            "lead": ["team management", "strategic planning", "stakeholder management"],
+            "principal": ["system design", "technical strategy", "innovation"],
+            "manager": ["people management", "budget planning", "strategic thinking"],
+            "director": ["executive communication", "business strategy", "organizational leadership"]
+        }
+        
+        for level, skills in leadership_skills.items():
+            if level in target_role.lower():
+                return skills
+        
+        return ["leadership", "strategic thinking", "advanced technical skills"]
+
+    def _get_skills_for_role(self, target_role: str) -> List[str]:
+        """Get required skills for a target role."""
+        # This would be enhanced with a skills database or ML model
+        role_skills_map = {
+            "software engineer": ["python", "javascript", "sql", "git", "agile"],
+            "data scientist": ["python", "machine learning", "statistics", "sql", "pandas"],
+            "product manager": ["product management", "analytics", "user research", "agile"],
+            "devops engineer": ["docker", "kubernetes", "aws", "ci/cd", "monitoring"],
+            "frontend developer": ["javascript", "react", "css", "html", "typescript"],
+            "backend developer": ["python", "node.js", "sql", "api design", "microservices"]
+        }
+        
+        # Find matching role
+        for role, skills in role_skills_map.items():
+            if role in target_role.lower():
+                return skills
+        
+        # Default skills for unknown roles
+        return ["communication", "problem solving", "technical skills", "collaboration"]
 
     # def _identify_strengths(self, user_profile: UserProfile, job: JobPosting) -> List[str]:
     #     """Identify user's strengths for this job."""

@@ -10,9 +10,10 @@ from typing import List, Optional, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from services.job_fetcher.service import JobFetcher
-from services.job_matching_engine import JobMatchingEngine
-from models import JobPosting, JobSearchResult, UserProfile, MatchAnalysis
+from ..services.job_fetcher.service import JobFetcher
+from ..services.job_matching_engine import JobMatchingEngine
+from ..models import JobPosting, JobSearchResult, UserProfile, MatchAnalysis
+from ..models.coursera import LearningRecommendation
 
 router = APIRouter()
 
@@ -238,6 +239,88 @@ async def match_jobs(request: JobMatchRequest):
     except Exception as e:
         logger.error(f"Failed to match jobs: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to match jobs: {str(e)}")
+
+
+@router.get("/{job_id}/learning-recommendations")
+async def get_job_learning_recommendations(
+    job_id: str,
+    user_profile: Dict[str, Any]
+):
+    """
+    Get learning recommendations for a specific job based on user profile.
+
+    Args:
+        job_id: Job identifier
+        user_profile: User profile data
+
+    Returns:
+        Learning recommendations to bridge skill gaps for the job
+    """
+    try:
+        # Get job details
+        job = job_fetcher.get_job_details(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+
+        # Convert dict to UserProfile object
+        user = UserProfile(**user_profile)
+
+        # Get learning recommendations
+        recommendations = await job_matcher.get_learning_recommendations_for_job(
+            user_profile=user,
+            job=job
+        )
+
+        return {
+            "success": True,
+            "job_id": job_id,
+            "recommendations": recommendations
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get learning recommendations: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get learning recommendations: {str(e)}")
+
+
+@router.post("/career-development/{user_id}")
+async def get_career_development_plan(
+    user_id: str,
+    target_role: str,
+    user_profile: Dict[str, Any]
+):
+    """
+    Get a comprehensive career development plan for a target role.
+
+    Args:
+        user_id: User identifier
+        target_role: Target role to achieve
+        user_profile: User profile data
+
+    Returns:
+        Learning recommendations for career development
+    """
+    try:
+        # Convert dict to UserProfile object
+        user = UserProfile(**user_profile)
+
+        # Get career development plan
+        recommendations = await job_matcher.get_career_development_plan(
+            user_profile=user,
+            target_role=target_role
+        )
+
+        return {
+            "success": True,
+            "user_id": user_id,
+            "target_role": target_role,
+            "recommendations": recommendations
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get career development plan: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get career development plan: {str(e)}")
 
 
 @router.get("/health")
