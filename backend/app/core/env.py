@@ -52,8 +52,8 @@ REDIS_URL = get_env("REDIS_URL", "redis://localhost:6379")
 AWS_REGION = get_env("AWS_REGION", "us-east-1")
 AWS_ACCESS_KEY_ID = get_env("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = get_env("AWS_SECRET_ACCESS_KEY")
-TEXTTRACT_ACCESS_KEY_ID = get_env("TEXTRACT_AWS_ACCESS_KEY_ID")
-TEXTTRACT_SECRET_ACCESS_KEY = get_env("TEXTRACT_AWS_SECRET_ACCESS_KEY")
+TEXTRACT_ACCESS_KEY_ID = get_env("TEXTRACT_AWS_ACCESS_KEY_ID")
+TEXTRACT_SECRET_ACCESS_KEY = get_env("TEXTRACT_AWS_SECRET_ACCESS_KEY")
 
 # Bedrock Configuration
 BEDROCK_MODEL_ID = get_env("BEDROCK_MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
@@ -94,10 +94,10 @@ def get_aws_credentials() -> dict:
 def get_textract_credentials() -> dict:
     """Get AWS credentials for Textract."""
     credentials = {}
-    if TEXTTRACT_ACCESS_KEY_ID:
-        credentials["aws_access_key_id"] = TEXTTRACT_ACCESS_KEY_ID
-    if TEXTTRACT_SECRET_ACCESS_KEY:
-        credentials["aws_secret_access_key"] = TEXTTRACT_SECRET_ACCESS_KEY
+    if TEXTRACT_ACCESS_KEY_ID:
+        credentials["aws_access_key_id"] = TEXTRACT_ACCESS_KEY_ID
+    if TEXTRACT_SECRET_ACCESS_KEY:
+        credentials["aws_secret_access_key"] = TEXTRACT_SECRET_ACCESS_KEY
     if AWS_REGION:
         credentials["region_name"] = AWS_REGION
     return credentials
