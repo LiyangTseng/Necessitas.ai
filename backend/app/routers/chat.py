@@ -14,6 +14,7 @@ import re
 
 from agents.bedrock_agent.invoke import invoke_agent
 from models.chat import ChatMessage, ChatRequest, ChatResponse
+from core.session import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -83,9 +84,29 @@ async def chat_with_agent(request: ChatRequest):
     try:
         logger.info(f"Received chat request: {request.message[:100]}...")
 
+        # Build enhanced prompt with resume context
+        enhanced_prompt = request.message
+
+        # Add resume context if available
+        if request.session_id:
+            resume_data = SessionManager.get_resume_data(request.session_id)
+            if resume_data:
+                resume_context = f"""
+Resume Context:
+- Name: {resume_data.personal_info.full_name if resume_data.personal_info else 'Not provided'}
+- Skills: {', '.join(resume_data.skills[:10]) if resume_data.skills else 'None listed'}
+- Experience: {len(resume_data.experience)} positions
+- Education: {len(resume_data.education)} entries
+- Summary: {resume_data.summary[:200] if resume_data.summary else 'No summary available'}
+
+User Question: {request.message}
+"""
+                enhanced_prompt = resume_context
+                logger.info(f"Enhanced prompt with resume context for session: {request.session_id}")
+
         # Get raw response from agent
         raw_response = invoke_agent(
-            prompt=request.message,
+            prompt=enhanced_prompt,
             setup_runtime=False,
             agent_arn="arn:aws:bedrock-agentcore:us-west-2:488234668762:runtime/bedrock_agent-TO4pEH7Avm",
             agent_id="bedrock_agent-TO4pEH7Avm",
@@ -123,3 +144,40 @@ async def test_chat():
         "message": "Chat service is working!",
         "status": "ready"
     }
+
+@router.post("/chat/session")
+async def create_chat_session():
+    """Create a new chat session."""
+    session_id = SessionManager.create_session()
+    return {"session_id": session_id}
+
+@router.post("/chat/session/{session_id}/resume")
+async def store_resume_in_session(session_id: str, resume_data: dict):
+    """Store parsed resume data in a chat session."""
+    try:
+        # Convert dict to ResumeData object
+        from models.user import ResumeData, PersonalInfo, Experience, Education, Certification
+        from datetime import datetime
+
+        # This is a simplified conversion - you might want to add validation
+        resume_obj = ResumeData(
+            personal_info=PersonalInfo(**resume_data.get("personal_info", {})),
+            summary=resume_data.get("summary", ""),
+            skills=resume_data.get("skills", []),
+            experience=[Experience(**exp) for exp in resume_data.get("experience", [])],
+            education=[Education(**edu) for edu in resume_data.get("education", [])],
+            certifications=[Certification(**cert) for cert in resume_data.get("certifications", [])],
+            raw_text=resume_data.get("raw_text", ""),
+            confidence_score=resume_data.get("confidence_score", 0.0)
+        )
+
+        success = SessionManager.update_resume_data(session_id, resume_obj)
+
+        if success:
+            return {"message": "Resume data stored successfully", "session_id": session_id}
+        else:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+    except Exception as e:
+        logger.error(f"Failed to store resume data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to store resume data: {str(e)}")
