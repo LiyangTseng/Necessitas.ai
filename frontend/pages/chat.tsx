@@ -33,14 +33,29 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showResumeUpload, setShowResumeUpload] = useState(true);
+  const [showResumeUpload, setShowResumeUpload] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [parsedResumeData, setParsedResumeData] = useState<any>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Add welcome message on component mount
+  useEffect(() => {
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: Date.now().toString(),
+        type: 'bot',
+        content: "👋 Hi! I'm your AI career assistant. To get started, please upload your resume so I can provide personalized career guidance, job recommendations, and skill development advice tailored to your background.",
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -59,7 +74,7 @@ export default function ChatPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:8000/api/resume/parse/file', {
+      const response = await fetch('http://54.212.183.44:8000/api/resume/parse/file', {
         method: 'POST',
         body: formData,
       });
@@ -68,15 +83,40 @@ export default function ChatPage() {
         const results = await response.json();
         console.log('Resume analysis results:', results);
 
-        // Add welcome message after successful upload
+        // Store parsed resume data
+        setParsedResumeData(results.data);
+
+        // Create a chat session
+        const sessionResponse = await fetch('http://54.212.183.44:8000/api/chat/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          setSessionId(sessionData.session_id);
+
+          // Store resume data in session
+          await fetch(`http://54.212.183.44:8000/api/chat/session/${sessionData.session_id}/resume`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results.data)
+          });
+        }
+
+        // Add a simple welcome message and let the first user interaction be personalized
         const welcomeMessage: Message = {
           id: Date.now().toString(),
           type: 'bot',
-          content: `Great! I've analyzed your resume for ${results.data?.personal_info?.full_name || 'you'}. I found ${results.data?.skills?.length || 0} skills and ${results.data?.experience?.length || 0} work experiences. How can I help you with your career today?`,
+          content: `✅ Resume analyzed successfully! I've reviewed your background and I'm ready to help with your career. What would you like to know?`,
           timestamp: new Date()
         };
-
         setMessages([welcomeMessage]);
+
         setShowResumeUpload(false);
         toast.success('Resume analyzed successfully!');
       } else {
@@ -117,7 +157,7 @@ export default function ChatPage() {
 
     try {
       // Call backend chat endpoint
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch('http://54.212.183.44:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +167,9 @@ export default function ChatPage() {
           conversation_history: messages.map(msg => ({
             role: msg.type === 'user' ? 'user' : 'assistant',
             content: msg.content
-          }))
+          })),
+          session_id: sessionId,
+          resume_context: parsedResumeData
         }),
       });
 
@@ -181,11 +223,15 @@ export default function ChatPage() {
   const quickActions = [
     {
       icon: <Upload className="w-4 h-4" />,
-      text: "Resume Re-upload",
+      text: uploadedFile ? "Resume Re-upload" : "Upload Resume",
       action: () => {
         setShowResumeUpload(true);
-        setUploadedFile(null);
-        setMessages([]);
+        if (uploadedFile) {
+          setUploadedFile(null);
+          setParsedResumeData(null);
+          setSessionId(null);
+          setMessages([]);
+        }
       }
     },
     {

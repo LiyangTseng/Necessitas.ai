@@ -7,7 +7,6 @@ Data models for user profiles, skills, experience, education, and resume data.
 from dataclasses import dataclass, field
 from datetime import datetime, date
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
 
 from .base import WorkType, ExperienceLevel, LocationPreference
 
@@ -89,16 +88,18 @@ class ResumeData:
 
 # ========== User Profile Models ==========
 
-class Skill(BaseModel):
+@dataclass
+class Skill:
     """Skill model."""
     name: str
-    level: int = Field(ge=1, le=5, description="Skill level from 1-5")
-    category: str
+    level: int = 1  # Skill level from 1-5
+    category: str = ""
     years_experience: Optional[int] = None
     last_used: Optional[datetime] = None
 
 
-class WorkExperience(BaseModel):
+@dataclass
+class WorkExperience:
     """Work experience model."""
     title: str
     company: str
@@ -106,24 +107,26 @@ class WorkExperience(BaseModel):
     start_date: datetime
     end_date: Optional[datetime] = None
     current: bool = False
-    description: str
-    achievements: List[str] = []
-    skills_used: List[str] = []
+    description: str = ""
+    achievements: List[str] = field(default_factory=list)
+    skills_used: List[str] = field(default_factory=list)
     work_type: WorkType = WorkType.FULL_TIME
 
 
-class Education(BaseModel):
+@dataclass
+class Education:
     """Education model."""
     degree: str
     institution: str
-    field_of_study: str
     graduation_date: datetime
+    field_of_study: str = ""
     gpa: Optional[float] = None
-    honors: List[str] = []
-    relevant_courses: List[str] = []
+    honors: List[str] = field(default_factory=list)
+    relevant_courses: List[str] = field(default_factory=list)
 
 
-class Certification(BaseModel):
+@dataclass
+class Certification:
     """Certification model."""
     name: str
     issuer: str
@@ -133,11 +136,12 @@ class Certification(BaseModel):
     verification_url: Optional[str] = None
 
 
-class CareerPreference(BaseModel):
+@dataclass
+class CareerPreference:
     """Career preference model."""
-    target_roles: List[str] = []
-    target_industries: List[str] = []
-    target_companies: List[str] = []
+    target_roles: List[str] = field(default_factory=list)
+    target_industries: List[str] = field(default_factory=list)
+    target_companies: List[str] = field(default_factory=list)
     salary_range_min: Optional[int] = None
     salary_range_max: Optional[int] = None
     location_preference: LocationPreference = LocationPreference.FLEXIBLE
@@ -146,22 +150,18 @@ class CareerPreference(BaseModel):
     remote_work_preference: bool = True
 
 
-class UserProfile(BaseModel):
+@dataclass
+class UserProfile:
     """User profile model."""
     user_id: str
-    personal_info: Dict[str, Any] = {}
-    skills: List[Skill] = []
-    experience: List[WorkExperience] = []
-    education: List[Education] = []
-    certifications: List[Certification] = []
-    preferences: CareerPreference = CareerPreference()
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+    personal_info: Dict[str, Any] = field(default_factory=dict)
+    skills: List[Skill] = field(default_factory=list)
+    experience: List[WorkExperience] = field(default_factory=list)
+    education: List[Education] = field(default_factory=list)
+    certifications: List[Certification] = field(default_factory=list)
+    preferences: CareerPreference = field(default_factory=CareerPreference)
+    created_at: datetime = field(default_factory=datetime.now)
+    updated_at: datetime = field(default_factory=datetime.now)
 
     def __str__(self) -> str:
         # use multiple lines for better readability

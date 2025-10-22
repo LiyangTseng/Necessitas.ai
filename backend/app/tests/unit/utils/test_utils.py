@@ -37,7 +37,7 @@ class MockDataFactory:
             "skills": ["Python", "React", "AWS", "Machine Learning"],
             "experience_years": 5,
             "location": "San Francisco, CA",
-            "preferred_locations": ["San Francisco", "Remote"],
+            "location_preference": ["San Francisco", "Remote"],
             "salary_min": 120000,
             "salary_max": 150000,
             "remote_preference": True,
