@@ -71,14 +71,10 @@ from .company import (
 from .analysis import (
     MatchAnalysis,
     DetailedScores,
-
-    # Insights API models
-    SkillGapRequest,
-    SkillGapResponse,
-    CareerRoadmapRequest,
-    CareerRoadmapResponse,
-    MatchAnalysisRequest,
-    MatchAnalysisResponse
+    SkillGapAnalysis,
+    CareerRoadmap,
+    SkillDevelopmentStep,
+    TimelineMilestone
 )
 
 # Chat models
@@ -134,14 +130,8 @@ __all__ = [
     "DetailedScores",
     "SkillGapAnalysis",
     "CareerRoadmap",
-
-    # Insights API models
-    "SkillGapRequest",
-    "SkillGapResponse",
-    "CareerRoadmapRequest",
-    "CareerRoadmapResponse",
-    "MatchAnalysisRequest",
-    "MatchAnalysisResponse",
+    "SkillDevelopmentStep",
+    "TimelineMilestone",
 
     # Company models
     "CompanyInfo",

@@ -84,7 +84,7 @@ async def chat_with_agent(request: ChatRequest):
     try:
         logger.info(f"Received chat request: {request.message[:100]}...")
 
-        # Build enhanced prompt with resume context
+        # Build enhanced prompt with resume context and conversation history
         enhanced_prompt = request.message
 
         # Add resume context if available
@@ -98,11 +98,16 @@ Resume Context:
 - Experience: {len(resume_data.experience)} positions
 - Education: {len(resume_data.education)} entries
 - Summary: {resume_data.summary[:200] if resume_data.summary else 'No summary available'}
-
-User Question: {request.message}
 """
                 enhanced_prompt = resume_context
                 logger.info(f"Enhanced prompt with resume context for session: {request.session_id}")
+
+        # Add conversation history if available
+        if request.conversation_history and len(request.conversation_history) > 0:
+            conversation_context = "\nPrevious Conversation:\n"
+            for msg in request.conversation_history[-5:]:  # Last 5 messages for context
+                conversation_context += f"{msg.role}: {msg.content}\n"
+            enhanced_prompt += f"\n{conversation_context}\nCurrent User Question: {request.message}"
 
         # Get raw response from agent
         raw_response = invoke_agent(
@@ -118,6 +123,11 @@ User Question: {request.message}
 
         # Process markdown formatting
         processed_response = process_markdown_response(cleaned_response)
+
+        # Store conversation in session if session_id is provided
+        if request.session_id:
+            SessionManager.add_message(request.session_id, "user", request.message)
+            SessionManager.add_message(request.session_id, "assistant", processed_response["text"])
 
         return ChatResponse(
             response=processed_response["text"],

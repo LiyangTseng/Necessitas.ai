@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 from models.base import WorkType, ExperienceLevel, LocationPreference, CompanySize, Industry
 from models.user import UserProfile
@@ -157,83 +157,3 @@ class TimelineMilestone:
             self.skills_to_achieve = []
         if self.success_criteria is None:
             self.success_criteria = []
-
-
-# ========== Insights API Models ==========
-
-@dataclass
-class SkillGapRequest:
-    """Request model for skill gap analysis."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    target_role: Optional[str] = None
-
-
-@dataclass
-class SkillGapResponse:
-    """Response model for skill gap analysis."""
-    success: bool
-    current_skills: List[str] = None
-    missing_skills: List[str] = None
-    skill_gaps: List[Dict[str, Any]] = None
-    recommendations: List[str] = None
-    error: Optional[str] = None
-
-    def __post_init__(self):
-        if self.current_skills is None:
-            self.current_skills = []
-        if self.missing_skills is None:
-            self.missing_skills = []
-        if self.skill_gaps is None:
-            self.skill_gaps = []
-        if self.recommendations is None:
-            self.recommendations = []
-
-
-@dataclass
-class CareerRoadmapRequest:
-    """Request model for career roadmap generation."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    target_role: str
-
-
-@dataclass
-class CareerRoadmapResponse:
-    """Response model for career roadmap."""
-    success: bool
-    target_role: str = ""
-    roadmap_steps: List[Dict[str, Any]] = None
-    estimated_timeline: str = ""
-    error: Optional[str] = None
-
-    def __post_init__(self):
-        if self.roadmap_steps is None:
-            self.roadmap_steps = []
-
-
-@dataclass
-class MatchAnalysisRequest:
-    """Request model for job match analysis."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    job_posting: Dict[str, Any]  # JobPosting as dict
-
-
-@dataclass
-class MatchAnalysisResponse:
-    """Response model for job match analysis."""
-    success: bool
-    overall_score: float = 0.0
-    detailed_scores: Dict[str, float] = None
-    strengths: List[str] = None
-    weaknesses: List[str] = None
-    recommendations: List[str] = None
-    error: Optional[str] = None
-
-    def __post_init__(self):
-        if self.detailed_scores is None:
-            self.detailed_scores = {}
-        if self.strengths is None:
-            self.strengths = []
-        if self.weaknesses is None:
-            self.weaknesses = []
-        if self.recommendations is None:
-            self.recommendations = []

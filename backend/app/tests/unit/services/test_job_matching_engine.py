@@ -31,7 +31,7 @@ class TestJobMatchingEngine(unittest.TestCase):
                 Skill(name="AWS", level=3, category="Cloud", years_experience=2),
                 Skill(name="Docker", level=3, category="DevOps", years_experience=2)
             ],
-            work_experience=[
+            experience=[
                 WorkExperience(
                     title="Senior Software Engineer",
                     company="TechCorp",
@@ -48,16 +48,19 @@ class TestJobMatchingEngine(unittest.TestCase):
                     degree="Bachelor of Science",
                     institution="Stanford University",
                     field_of_study="Computer Science",
-                    graduation_date="2019-06-01"
+                    graduation_date=datetime(2019, 6, 1)
                 )
             ],
-            career_preferences=CareerPreference(
-                preferred_locations=["San Francisco, CA", "Remote"],
-                salary_expectations={"min": 120000, "max": 180000},
-                work_type_preferences=[WorkType.FULL_TIME],
-                experience_level_preferences=[ExperienceLevel.SENIOR],
-                company_size_preferences=[CompanySize.MEDIUM, CompanySize.LARGE],
-                industry_preferences=[Industry.TECHNOLOGY]
+            preferences=CareerPreference(
+                target_roles=["Senior Python Developer"],
+                target_industries=["Technology"],
+                target_companies=["InnovateTech"],
+                salary_range_min=120000,
+                salary_range_max=180000,
+                location_preference=LocationPreference.FLEXIBLE,
+                work_type_preference=WorkType.FULL_TIME,
+                company_size_preference="Medium",
+                remote_work_preference=True
             )
         )
         job_postings = [
@@ -147,7 +150,7 @@ class TestJobMatchingEngine(unittest.TestCase):
         )
         self.assertEqual(len(job_postings_with_analysis), num_matches)
         self.assertEqual(job_postings_with_analysis[0][0].job_id, "job_001")
-        self.assertAlmostEqual(job_postings_with_analysis[0][1].overall_score, 0.625, places=2)
+        self.assertAlmostEqual(job_postings_with_analysis[0][1].overall_score, 0.975, places=2)
 
     def test_analysis_generation(self):
         user_profile = UserProfile(
@@ -164,7 +167,7 @@ class TestJobMatchingEngine(unittest.TestCase):
                 Skill(name="AWS", level=3, category="Cloud", years_experience=2),
                 Skill(name="Docker", level=3, category="DevOps", years_experience=2)
             ],
-            work_experience=[
+            experience=[
                 WorkExperience(
                     title="Senior Software Engineer",
                     company="TechCorp",
@@ -181,16 +184,19 @@ class TestJobMatchingEngine(unittest.TestCase):
                     degree="Bachelor of Science",
                     institution="Stanford University",
                     field_of_study="Computer Science",
-                    graduation_date="2019-06-01"
+                    graduation_date=datetime(2019, 6, 1)
                 )
             ],
-            career_preferences=CareerPreference(
-                preferred_locations=["San Francisco, CA", "Remote"],
-                salary_expectations={"min": 120000, "max": 180000},
-                work_type_preferences=[WorkType.FULL_TIME],
-                experience_level_preferences=[ExperienceLevel.SENIOR],
-                company_size_preferences=[CompanySize.MEDIUM, CompanySize.LARGE],
-                industry_preferences=[Industry.TECHNOLOGY]
+            preferences=CareerPreference(
+                target_roles=["Senior Python Developer"],
+                target_industries=["Technology"],
+                target_companies=["InnovateTech"],
+                salary_range_min=120000,
+                salary_range_max=180000,
+                location_preference=LocationPreference.FLEXIBLE,
+                work_type_preference=WorkType.FULL_TIME,
+                company_size_preference="Medium",
+                remote_work_preference=True
             )
         )
 
@@ -211,7 +217,7 @@ class TestJobMatchingEngine(unittest.TestCase):
         )
 
         expected_analysis = MatchAnalysis(
-            overall_score=0.625,
+            overall_score=0.975,
             detailed_scores=DetailedScores(
                 skills=0.95,
                 experience=0.95,

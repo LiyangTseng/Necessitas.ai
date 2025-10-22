@@ -19,11 +19,11 @@ from models import (
 )
 from datetime import datetime
 import logging
-from pydantic.json import pydantic_encoder
+from dataclasses import asdict
 logger = logging.getLogger(__name__)
 
 def resume_to_user_profile(resume_data: ResumeData) -> UserProfile:
-    """Convert ResumeData (dataclass) → UserProfile (Pydantic model)."""
+    """Convert ResumeData (dataclass) → UserProfile (dataclass)."""
     # 1. personal_info dict
     personal_info_dict = {
         "name": resume_data.personal_info.full_name,
@@ -134,7 +134,7 @@ async def main():
 
     # Step 4: Output JSON
     print("\n===== FINAL PIPELINE JSON =====")
-    print(json.dumps(match_result, indent=2, default=pydantic_encoder))
+    print(json.dumps(match_result, indent=2, default=dataclass_encoder))
 
 
 if __name__ == "__main__":

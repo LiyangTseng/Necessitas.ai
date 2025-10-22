@@ -7,10 +7,6 @@ compatibility analysis and skill gap identification.
 """
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
-import numpy as np
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from sklearn.metrics.pairwise import cosine_similarity
-# from sentence_transformers import SentenceTransformer
 from models import (
     UserProfile,
     JobPosting,
