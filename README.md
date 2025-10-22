@@ -117,6 +117,11 @@ Note: we should have the ECR repo (*necessitas-backend* in this example), ECS cl
   # Have the docker image built in local (necessitas_backend in this case)
   docker build -t necessitas_backend .
 
+  # Test docker container in local to check if backend is running correctly in docker sandbox environment.
+  ```shell
+  docker run --rm --env-file .env -p 8000:8000 necessitas_backend
+  ```
+
   # Login to ECR
   aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-west-2.amazonaws.com
 
