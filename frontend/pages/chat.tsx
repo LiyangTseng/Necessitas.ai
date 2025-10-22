@@ -74,7 +74,7 @@ export default function ChatPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://54.212.183.44:8000/api/resume/parse/file', {
+      const response = await fetch('http://54.149.189.126:8000/api/resume/parse/file', {
         method: 'POST',
         body: formData,
       });
@@ -87,7 +87,7 @@ export default function ChatPage() {
         setParsedResumeData(results.data);
 
         // Create a chat session
-        const sessionResponse = await fetch('http://54.212.183.44:8000/api/chat/session', {
+        const sessionResponse = await fetch('http://54.149.189.126:8000/api/chat/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function ChatPage() {
           setSessionId(sessionData.session_id);
 
           // Store resume data in session
-          await fetch(`http://54.212.183.44:8000/api/chat/session/${sessionData.session_id}/resume`, {
+          await fetch(`http://54.149.189.126:8000/api/chat/session/${sessionData.session_id}/resume`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ export default function ChatPage() {
 
     try {
       // Call backend chat endpoint
-      const response = await fetch('http://54.212.183.44:8000/api/chat', {
+      const response = await fetch('http://54.149.189.126:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
