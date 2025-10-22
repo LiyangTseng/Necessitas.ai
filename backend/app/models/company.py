@@ -185,6 +185,7 @@ class CompanySearchResponse:
     """Response model for company search."""
     success: bool
     companies: List[CompanySearchResult] = None
+    total_count: Optional[int] = None
     error: Optional[str] = None
 
     def __post_init__(self):

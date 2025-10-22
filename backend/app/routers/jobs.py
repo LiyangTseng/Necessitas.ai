@@ -8,6 +8,8 @@ from fastapi import APIRouter, HTTPException, Query
 import logging
 logger = logging.getLogger(__name__)
 
+from services.job_fetcher import JobFetcher
+from services.job_matching_engine import JobMatchingEngine
 from models import (
     JobSearchResponse,
     JobSearchRequest,
@@ -19,7 +21,8 @@ from models import (
 
 router = APIRouter()
 
-
+job_fetcher = JobFetcher()
+job_matcher = JobMatchingEngine()
 
 @router.post("/search", response_model=JobSearchResponse)
 async def search_jobs(request: JobSearchRequest):
@@ -167,8 +170,21 @@ async def match_jobs(request: JobMatchRequest):
         List of job matches with analysis
     """
     try:
-        # Convert dict to UserProfile object
-        user_profile = UserProfile(**request.user_profile)
+        # Convert dict to UserProfile object, filtering out extra fields
+        user_profile_data = request.user_profile.copy()
+
+        # Extract only the fields that UserProfile expects
+        user_profile_fields = {
+            'user_id': user_profile_data.get('user_id', 'temp_user'),
+            'personal_info': user_profile_data.get('personal_info', {}),
+            'skills': user_profile_data.get('skills', []),
+            'experience': user_profile_data.get('experience', []),
+            'education': user_profile_data.get('education', []),
+            'certifications': user_profile_data.get('certifications', []),
+            'preferences': user_profile_data.get('preferences', {})
+        }
+
+        user_profile = UserProfile(**user_profile_fields)
 
         # Get available jobs (this would typically come from a job database)
         # For now, we'll search for jobs first
@@ -182,8 +198,8 @@ async def match_jobs(request: JobMatchRequest):
         matches = job_matcher.find_matches(
             user_profile=user_profile,
             job_postings=available_jobs,
-            limit=request.limit,
-            min_score=request.min_score
+            limit=10,
+            min_score=0.6
         )
 
         # Convert matches to serializable format

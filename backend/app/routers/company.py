@@ -12,7 +12,7 @@ from models import CompanySearchResponse, CompanyInfo, CompanySearchResult
 from services.company_info_fetcher.service import CompanyInfoFetcher
 
 router = APIRouter()
-
+company_fetcher = CompanyInfoFetcher()
 
 @router.get("/search", response_model=CompanySearchResponse)
 async def search_companies(
