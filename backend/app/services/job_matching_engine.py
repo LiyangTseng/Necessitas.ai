@@ -132,7 +132,7 @@ class JobMatchingEngine:
     def find_matches(
         self, user_profile: UserProfile, job_postings: List[JobPosting],
         limit: int = 10, min_score: float = 0.5,
-    ) -> Tuple[JobPosting, MatchAnalysis]:
+    ) -> List[Tuple[JobPosting, MatchAnalysis]]:
         """
         Find the best job matches for a user.
 

@@ -206,6 +206,8 @@ class JobMatchRequest:
     """Request model for job matching."""
     user_profile: Dict[str, Any]  # UserProfile as dict
     job_criteria: Dict[str, Any] = None
+    limit: int = 10
+    min_score: float = 0.5
 
     def __post_init__(self):
         if self.job_criteria is None:

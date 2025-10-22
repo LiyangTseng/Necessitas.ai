@@ -16,7 +16,8 @@ from models import (
     JobMatchResponse,
     JobMatchRequest,
     UserProfile,
-    MatchAnalysis
+    MatchAnalysis,
+    CareerPreference
 )
 
 router = APIRouter()
@@ -161,7 +162,7 @@ async def get_company_jobs(
 @router.post("/match", response_model=JobMatchResponse)
 async def match_jobs(request: JobMatchRequest):
     """
-    Find job matches for a user profile.
+    Find job matches for a user profile using resume as a filtering mechanism.
 
     Args:
         request: User profile and matching criteria
@@ -181,25 +182,58 @@ async def match_jobs(request: JobMatchRequest):
             'experience': user_profile_data.get('experience', []),
             'education': user_profile_data.get('education', []),
             'certifications': user_profile_data.get('certifications', []),
-            'preferences': user_profile_data.get('preferences', {})
         }
+
+        # Create CareerPreference object from dict
+        preferences_data = user_profile_data.get('preferences', {})
+        preferences = CareerPreference(**preferences_data)
+        user_profile_fields['preferences'] = preferences
 
         user_profile = UserProfile(**user_profile_fields)
 
-        # Get available jobs (this would typically come from a job database)
-        # For now, we'll search for jobs first
+        # Extract job search criteria from request
+        job_criteria = request.job_criteria or {}
+        query = job_criteria.get("query", "")
+        location = job_criteria.get("location")
+        search_limit = job_criteria.get("limit", 50)
+
+        # Debug logging
+        logger.info(f"Job match request - job_criteria: {job_criteria}")
+        logger.info(f"Job match request - query: '{query}'")
+        print(user_profile)
+
+        # If no query in job_criteria, try to use a default based on user profile
+        if not query:
+            # Try to extract a default query from user profile skills
+            user_skills = [skill.get('name', '') for skill in user_profile_data.get('skills', [])]
+            if user_skills:
+                query = f"{user_skills[0]} developer"  # Use first skill as default
+                logger.info(f"Using default query based on skills: '{query}'")
+            else:
+                query = "software engineer"  # Fallback default
+                logger.info(f"Using fallback default query: '{query}'")
+
+        # Search for jobs using the provided criteria
         available_jobs = job_fetcher.search_jobs(
-            query=request.job_criteria.get("query", "software engineer"),
-            location=request.job_criteria.get("location"),
-            limit=50  # Get more jobs for matching
+            query=query,
+            location=location,
+            limit=search_limit
         )
 
-        # Find matches using the matching engine
+        if not available_jobs:
+            return JobMatchResponse(
+                success=True,
+                matches=[],
+                total_count=0
+            )
+
+        # Find matches using the matching engine - this acts as a filtering mechanism
+        # The resume/profile is used to filter and score the job search results
         matches = job_matcher.find_matches(
             user_profile=user_profile,
             job_postings=available_jobs,
-            limit=10,
-            min_score=0.6
+            limit=request.limit,
+            min_score=request.min_score
         )
 
         # Convert matches to serializable format
@@ -217,6 +251,8 @@ async def match_jobs(request: JobMatchRequest):
             total_count=len(match_results)
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to match jobs: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to match jobs: {str(e)}")
