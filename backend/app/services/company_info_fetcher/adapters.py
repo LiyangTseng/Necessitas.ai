@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 from .base_adapter import CompanyDataAdapter
 from models import CompanyInfo, FundingRound
-from core.config import settings
+from core.env import CRUNCHBASE_API_KEY
 
 
 class CrunchbaseCompanyAdapter(CompanyDataAdapter):
@@ -20,7 +20,7 @@ class CrunchbaseCompanyAdapter(CompanyDataAdapter):
 
     def __init__(self, api_key: str = None):
         """Initialize Crunchbase adapter."""
-        self.api_key = api_key or settings.crunchbase_api_key
+        self.api_key = api_key or CRUNCHBASE_API_KEY
         self.base_url = "https://api.crunchbase.com/v4"
         self.headers = (
             {"X-cb-user-key": self.api_key, "Content-Type": "application/json"}

@@ -15,7 +15,7 @@ from datetime import datetime, date
 import requests
 from urllib.parse import urlparse
 
-from core.config import settings
+from core.env import get_textract_credentials
 import logging
 
 # Import centralized models
@@ -29,11 +29,11 @@ class ResumeParser:
     def __init__(self):
         """Initialize the resume parser."""
         # AWS Textract client
+        textract_credentials = get_textract_credentials()
+        logger.info(f"Textract credentials: {textract_credentials}")
         self.textract = boto3.client(
             "textract",
-            region_name=settings.aws_region,
-            aws_access_key_id=settings.aws_access_key_id,
-            aws_secret_access_key=settings.aws_secret_access_key,
+            **get_textract_credentials()
         )
 
         self.nlp = None

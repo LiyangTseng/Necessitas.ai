@@ -11,7 +11,7 @@ import uvicorn
 import logging
 from rich.console import Console
 
-from core.config import settings
+from core.env import APP_NAME, APP_VERSION, DEBUG
 from routers import resume, jobs, insights, company, chat
 
 console = Console()
@@ -41,9 +41,9 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="necessitas.ai API",
+    title=APP_NAME,
     description="Intelligent career path recommendation system",
-    version="1.0.0",
+    version=APP_VERSION,
     lifespan=lifespan,
 )
 

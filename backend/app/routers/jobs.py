@@ -3,56 +3,22 @@ Jobs API Router
 
 Provides REST API endpoints for job search and matching.
 """
-
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from services.job_fetcher.service import JobFetcher
-from services.job_matching_engine import JobMatchingEngine
-from models import JobPosting, JobSearchResult, UserProfile, MatchAnalysis
+from models import (
+    JobSearchResponse,
+    JobSearchRequest,
+    JobMatchResponse,
+    JobMatchRequest,
+    UserProfile,
+    MatchAnalysis
+)
 
 router = APIRouter()
 
-# Initialize services
-job_fetcher = JobFetcher()
-job_matcher = JobMatchingEngine()
-
-
-class JobSearchRequest(BaseModel):
-    """Request model for job search."""
-    query: str
-    location: Optional[str] = None
-    limit: int = 20
-    page: int = 1
-
-
-class JobSearchResponse(BaseModel):
-    """Response model for job search."""
-    success: bool
-    jobs: List[JobPosting] = []
-    total_count: int = 0
-    page: int = 1
-    limit: int = 20
-    error: Optional[str] = None
-
-
-class JobMatchRequest(BaseModel):
-    """Request model for job matching."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    job_criteria: Dict[str, Any] = {}
-    limit: int = 10
-    min_score: float = 0.5
-
-
-class JobMatchResponse(BaseModel):
-    """Response model for job matching."""
-    success: bool
-    matches: List[Dict[str, Any]] = []  # List of (job, match_analysis) pairs
-    total_count: int = 0
-    error: Optional[str] = None
 
 
 @router.post("/search", response_model=JobSearchResponse)

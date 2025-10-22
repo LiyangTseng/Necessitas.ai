@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from .base_adapter import CompanyDataAdapter
 from .adapters import CrunchbaseCompanyAdapter, MockCompanyAdapter
 from models import CompanyInfo, FundingRound, CompanySearchResult
-from core.config import settings
+from core.env import CRUNCHBASE_API_KEY
 
 
 class CompanyInfoFetcher:

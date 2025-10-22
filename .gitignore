@@ -132,6 +132,7 @@ aws-exports.js
 .bedrock_agentcore/
 .bedrock_agentcore.yaml
 backend/app/agents/bedrock_agent/AWSCLIV2.pkg
+backend/app/agents/bedrock_agent/Dockerfile
 
 # CDK
 cdk.out/

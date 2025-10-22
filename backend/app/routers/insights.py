@@ -5,80 +5,21 @@ Provides REST API endpoints for career insights and analysis.
 """
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
-from services.job_matching_engine import JobMatchingEngine
-from models import UserProfile, MatchAnalysis
+from models import (
+    UserProfile,
+    SkillGapResponse,
+    CareerRoadmapResponse,
+    MatchAnalysisResponse,
+    SkillGapRequest,
+    CareerRoadmapRequest,
+    MatchAnalysisRequest
+)
 
 router = APIRouter()
-
-# Initialize service
-job_matcher = JobMatchingEngine()
-
-
-class SkillGapRequest(BaseModel):
-    """Request model for skill gap analysis."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    target_role: Optional[str] = None
-
-
-class SkillGapResponse(BaseModel):
-    """Response model for skill gap analysis."""
-    success: bool
-    current_skills: List[str] = []
-    required_skills: List[str] = []
-    missing_skills: List[str] = []
-    strong_skills: List[str] = []
-    recommendations: List[str] = []
-    error: Optional[str] = None
-
-
-class CareerRoadmapRequest(BaseModel):
-    """Request model for career roadmap generation."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    target_role: str
-    timeline_months: int = 12
-
-
-class CareerRoadmapResponse(BaseModel):
-    """Response model for career roadmap."""
-    success: bool
-    target_role: str = ""
-    current_position: str = ""
-    timeline_months: int = 12
-    milestones: List[Dict[str, Any]] = []
-    skill_development_plan: List[Dict[str, Any]] = []
-    networking_goals: List[str] = []
-    certification_goals: List[str] = []
-    experience_goals: List[str] = []
-    error: Optional[str] = None
-
-
-class MatchAnalysisRequest(BaseModel):
-    """Request model for job match analysis."""
-    user_profile: Dict[str, Any]  # UserProfile as dict
-    job_posting: Dict[str, Any]  # JobPosting as dict
-
-
-class MatchAnalysisResponse(BaseModel):
-    """Response model for job match analysis."""
-    success: bool
-    overall_score: float = 0.0
-    detailed_scores: Dict[str, float] = {}
-    skill_matches: List[str] = []
-    skill_gaps: List[str] = []
-    reasons: List[str] = []
-    salary_fit: bool = False
-    location_fit: bool = False
-    experience_fit: bool = False
-    strengths: List[str] = []
-    weaknesses: List[str] = []
-    recommendations: List[str] = []
-    error: Optional[str] = None
-
 
 @router.post("/skill-gap", response_model=SkillGapResponse)
 async def analyze_skill_gap(request: SkillGapRequest):
@@ -95,8 +36,6 @@ async def analyze_skill_gap(request: SkillGapRequest):
         # Convert dict to UserProfile object
         user_profile = UserProfile(**request.user_profile)
 
-        # This would typically use the job_matcher.analyze_skill_gap method
-        # For now, we'll provide a basic implementation
         current_skills = [skill.name.lower() for skill in user_profile.skills]
 
         # Mock required skills based on target role or general tech skills

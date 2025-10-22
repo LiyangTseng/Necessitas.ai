@@ -114,20 +114,7 @@ def invoke_endpoint(
             stream=True,
         )
         print("Response: ", response.json())
-        last_data = False
-        for line in response.iter_lines(chunk_size=1):
-            if line:
-                line = line.decode("utf-8")
-                if line.startswith("data: "):
-                    last_data = True
-                    line = line[6:]
-                    line = line.replace('"', "")
-                    yield line
-                elif line:
-                    line = line.replace('"', "")
-                    if last_data:
-                        yield "\n" + line
-                    last_data = False
+        return response.json()
 
     except requests.exceptions.RequestException as e:
         print("Failed to invoke agent endpoint: %s", str(e))
@@ -161,7 +148,7 @@ def launch_runtime(runtime: Runtime):
     print("Launch completed ✓")
     return launch_result
 
-def main(setup_runtime=False, agent_arn=None, agent_id=None, client_id=None):
+def invoke_agent(prompt: str, setup_runtime=False, agent_arn=None, agent_id=None, client_id=None):
     if setup_runtime:
 
         cognito_config = setup_cognito_user_pool()
@@ -195,20 +182,21 @@ def main(setup_runtime=False, agent_arn=None, agent_id=None, client_id=None):
 
     print("Bearer Token: %s", bearer_token)
 
-    for chunk in invoke_endpoint(
+    response = invoke_endpoint(
         agent_arn=agent_arn,
-        payload={"prompt": "Find me real 3 job openings for software engineer intern with apply urls"},
+        payload={"prompt": prompt},
         session_id=str(uuid.uuid4()),
         bearer_token=bearer_token,
-    ):
-        print("Chunk: %s", chunk)
+    )
+
+    return response["response"]
 
 
 
 if __name__ == "__main__":
-    # main(setup_runtime=True)
-    main(setup_runtime=False,
+    # invoke_agent(setup_runtime=True)
+    response = invoke_agent(prompt="Find me real 3 job openings for software engineer intern with apply urls", setup_runtime=False,
         agent_arn="arn:aws:bedrock-agentcore:us-west-2:488234668762:runtime/bedrock_agent-TO4pEH7Avm",
         agent_id="bedrock_agent-TO4pEH7Avm",
-        client_id="6riuf44c9oa1vf7ut7t2jukf37"
-    )
+        client_id="6riuf44c9oa1vf7ut7t2jukf37")
+    print("Response: ", response)

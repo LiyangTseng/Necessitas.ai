@@ -110,6 +110,7 @@ Type enter when being asked on deployment details. Theoretically we should be ab
 
 ### **3. Test the System**
 ```bash
+curl -X POST -H "Content-Type: application/json" -d '{"message": "Hello, can you help me with my career?", "conversation_history": []}' http://localhost:8000/api/chat
 [TODO]
 # Test resume upload
 curl -X POST "http://localhost:8000/api/resume/upload" \

@@ -12,7 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from services.resume_parser import ResumeParser, ResumeData
+from services.resume_parser import ResumeParser
 from models import PersonalInfo, Experience, Education, Certification, ResumeParseRequest, ResumeParseResponse
 
 router = APIRouter()

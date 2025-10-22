@@ -24,7 +24,7 @@ from models import (
 import logging
 logger = logging.getLogger(__name__)
 
-from core.config import settings
+# No environment variables needed for this service
 
 class JobMatchingEngine:
     """Advanced job-candidate matching engine using ML and multi-dimensional scoring."""
