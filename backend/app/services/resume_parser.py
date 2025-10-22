@@ -29,8 +29,7 @@ class ResumeParser:
     def __init__(self):
         """Initialize the resume parser."""
         # AWS Textract client
-        textract_credentials = get_textract_credentials()
-        print(textract_credentials)
+        textract_credentials = get_textract_credentials()        print(textract_credentials)
         self.textract = boto3.client(
             "textract",
             aws_access_key_id=textract_credentials["aws_access_key_id"],
