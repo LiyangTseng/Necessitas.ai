@@ -183,6 +183,7 @@ class JobSearchRequest:
     query: str
     location: Optional[str] = None
     limit: int = 20
+    page: int = 1
 
 
 @dataclass
@@ -190,6 +191,9 @@ class JobSearchResponse:
     """Response model for job search."""
     success: bool
     jobs: List[JobPosting] = None
+    total_count: Optional[int] = None
+    page: Optional[int] = None
+    limit: Optional[int] = None
     error: Optional[str] = None
 
     def __post_init__(self):
@@ -213,6 +217,7 @@ class JobMatchResponse:
     """Response model for job matching."""
     success: bool
     matches: List[Dict[str, Any]] = None  # List of (job, match_analysis) pairs
+    total_count: Optional[int] = None
     error: Optional[str] = None
 
     def __post_init__(self):

@@ -24,6 +24,21 @@ from models import (
 
 router = APIRouter()
 
+def _create_user_profile(user_profile_data: Dict[str, Any]) -> UserProfile:
+    """Create UserProfile object from dict, filtering out extra fields."""
+    # Extract only the fields that UserProfile expects
+    user_profile_fields = {
+        'user_id': user_profile_data.get('user_id', 'temp_user'),
+        'personal_info': user_profile_data.get('personal_info', {}),
+        'skills': user_profile_data.get('skills', []),
+        'experience': user_profile_data.get('experience', []),
+        'education': user_profile_data.get('education', []),
+        'certifications': user_profile_data.get('certifications', []),
+        'preferences': user_profile_data.get('preferences', {})
+    }
+
+    return UserProfile(**user_profile_fields)
+
 @router.post("/skill-gap", response_model=SkillGapResponse)
 async def analyze_skill_gap(request: SkillGapRequest):
     """
@@ -37,7 +52,7 @@ async def analyze_skill_gap(request: SkillGapRequest):
     """
     try:
         # Convert dict to UserProfile object
-        user_profile = UserProfile(**request.user_profile)
+        user_profile = _create_user_profile(request.user_profile)
 
         current_skills = [skill.name.lower() for skill in user_profile.skills]
 
@@ -52,13 +67,17 @@ async def analyze_skill_gap(request: SkillGapRequest):
 
         recommendations = _generate_skill_recommendations(missing_skills)
 
-        return SkillGapResponse(
-            success=True,
+        # Create SkillGapAnalysis object
+        analysis = SkillGapAnalysis(
             current_skills=current_skills,
             required_skills=required_skills,
             missing_skills=missing_skills,
-            strong_skills=strong_skills,
             recommendations=recommendations
+        )
+
+        return SkillGapResponse(
+            success=True,
+            analysis=analysis
         )
 
     except Exception as e:
@@ -79,7 +98,7 @@ async def generate_career_roadmap(request: CareerRoadmapRequest):
     """
     try:
         # Convert dict to UserProfile object
-        user_profile = UserProfile(**request.user_profile)
+        user_profile = _create_user_profile(request.user_profile)
 
         # Get current position from user profile
         current_position = "Entry Level"
@@ -97,16 +116,19 @@ async def generate_career_roadmap(request: CareerRoadmapRequest):
         certification_goals = _generate_certification_goals(request.target_role)
         experience_goals = _generate_experience_goals(request.target_role)
 
+        # Create CareerRoadmap object
+        roadmap = CareerRoadmap(
+            user_id="temp_user",  # This should come from authentication
+            target_role=request.target_role,
+            current_role=current_position,
+            roadmap_steps=skill_plan,
+            timeline=milestones,
+            estimated_timeline_months=request.timeline_months
+        )
+
         return CareerRoadmapResponse(
             success=True,
-            target_role=request.target_role,
-            current_position=current_position,
-            timeline_months=request.timeline_months,
-            milestones=milestones,
-            skill_development_plan=skill_plan,
-            networking_goals=networking_goals,
-            certification_goals=certification_goals,
-            experience_goals=experience_goals
+            roadmap=roadmap
         )
 
     except Exception as e:
@@ -127,29 +149,29 @@ async def analyze_job_match(request: MatchAnalysisRequest):
     """
     try:
         # Convert dicts to objects
-        user_profile = UserProfile(**request.user_profile)
+        user_profile = _create_user_profile(request.user_profile)
         # Note: JobPosting conversion would need to be implemented based on the model
 
         # This would use the job_matcher.analyze_match method
         # For now, return a mock analysis
-        return MatchAnalysisResponse(
-            success=True,
+        detailed_scores = DetailedScores(
+            skills=0.8,
+            experience=0.7,
+            location=0.9,
+            salary=0.6
+        )
+
+        analysis = MatchAnalysis(
             overall_score=0.75,
-            detailed_scores={
-                "skills": 0.8,
-                "experience": 0.7,
-                "location": 0.9,
-                "salary": 0.6
-            },
-            skill_matches=["python", "javascript"],
-            skill_gaps=["aws", "docker"],
-            reasons=["Strong skill alignment", "Experience level matches"],
-            salary_fit=True,
-            location_fit=True,
-            experience_fit=True,
+            detailed_scores=detailed_scores,
             strengths=["Strong in Python and JavaScript"],
             weaknesses=["Missing AWS experience"],
             recommendations=["Consider learning AWS fundamentals"]
+        )
+
+        return MatchAnalysisResponse(
+            success=True,
+            analysis=analysis
         )
 
     except Exception as e:

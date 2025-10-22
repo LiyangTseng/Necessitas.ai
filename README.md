@@ -143,7 +143,20 @@ Note: we should have the ECR repo (*necessitas-backend* in this example), ECS cl
   ```
 
 ### **3. Test the System**
+- Test API requests
 ```bash
+curl -X 'POST' \
+  'http://0.0.0.0:8000/api/jobs/search' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "Software Engineering Intern",
+  "location": "San Francisco",
+  "limit": 20,
+  "page": 1
+}'
+
+# Test the agent
 curl -X POST -H "Content-Type: application/json" -d '{"message": "Hello, can you help me with my career?", "conversation_history": []}' http://localhost:8000/api/chat
 [TODO]
 # Test resume upload
