@@ -32,3 +32,5 @@ class ChatResponse:
     response: str
     success: bool = True
     error: Optional[str] = None
+    markdown_content: Optional[str] = None
+    has_markdown: bool = False

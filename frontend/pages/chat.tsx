@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { useRouter } from 'next/router';
+import ReactMarkdown from 'react-markdown';
 import {
   Send,
   Bot,
@@ -320,7 +321,9 @@ export default function ChatPage() {
                           ? 'bg-indigo-600 text-white'
                           : 'bg-gray-100 text-gray-900'
                       }`}>
-                        <p className="text-sm">{message.content}</p>
+                        <div className="text-sm prose prose-sm max-w-none">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
                         <p className={`text-xs mt-1 ${
                           message.type === 'user' ? 'text-indigo-100' : 'text-gray-500'
                         }`}>

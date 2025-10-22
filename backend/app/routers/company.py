@@ -5,39 +5,13 @@ Provides REST API endpoints for company information retrieval.
 """
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
 import logging
 logger = logging.getLogger(__name__)
 
+from models import CompanySearchResponse, CompanyInfo, CompanySearchResult
 from services.company_info_fetcher.service import CompanyInfoFetcher
-from models import CompanyInfo, CompanySearchResult
 
 router = APIRouter()
-
-# Initialize service
-company_fetcher = CompanyInfoFetcher()
-
-
-class CompanySearchRequest(BaseModel):
-    """Request model for company search."""
-    query: str
-    limit: int = 10
-
-
-class CompanySearchResponse(BaseModel):
-    """Response model for company search."""
-    success: bool
-    companies: List[CompanySearchResult] = []
-    total_count: int = 0
-    error: Optional[str] = None
-
-
-class CompanyInfoResponse(BaseModel):
-    """Response model for company information."""
-    success: bool
-    company: Optional[CompanyInfo] = None
-    error: Optional[str] = None
 
 
 @router.get("/search", response_model=CompanySearchResponse)
